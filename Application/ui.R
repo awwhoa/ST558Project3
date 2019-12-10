@@ -20,8 +20,13 @@ shinyUI(
                 menuItem("Start Here", tabName = "start"),
                 # downloadButton('downloadData', 'Download'),
                 menuItem("EDA", tabName = "eda"),
-                menuItem("Unsupervised Learning", tabName = "unsup"),
-                menuItem("Supervised Learning", tabName = "super"),
+                         menuSubItem("One-Ways & Bivariates", tabName="onebivars"),
+                         # menuSubItem("Bivariates - Target", tabName="bivarstgt"),
+                         menuSubItem("Bivariates - Numerics", tabName="bivarsnum"),
+                         menuSubItem("Cluster or PCA", tabName="unsuper"),
+                menuItem("Models", tabName = "model"),
+                         menuSubItem("Logistic Regression", tabName="log"),
+                         menuSubItem("Classification Tree", tabName="tree"),
                 menuItem("Give Me All the Data", tabName = "all")
             )
         ),
@@ -32,7 +37,7 @@ shinyUI(
                         fluidRow(
                             column(12,
                                    h2("About the data"),
-                                   "This dataset is a subset of the National Transportation Safety Board's Aviation Accident Database. The original database contains information about civil aviation accidents and incidents that occurred within the United States from 1962 to present day. Due to large number of records and variables in the original dataset, a subset of approximately 3,000 records and 10 variables are included with this application. This subset focuses on accidents or incidents by airplanes or helicopters that...",
+                                   "This dataset is a subset of the National Transportation Safety Board's Aviation Accident Database. The original database contains information about civil aviation accidents and incidents that occurred within the United States from 1962 to present day. Due to large number of records and variables in the original dataset, a subset of approximately 3,000 records and 10 variables are included with this application. This subset focuses on accidents or incidents by airplanes or helicopters that... The target variable is Fatal, which indicates if at least one person perished due to an accident or incident.",
                                    br(),br(),
                                    "Below are descriptions of the variables included in this application:",
                                    br(),br()),
@@ -51,13 +56,27 @@ shinyUI(
                                    <li>View, subset, and explore the data</li>
                                    </ul>")))
                         ),
-                # Second tab content
-                tabItem(tabName = "eda",
+                # Second tab content - first submenu
+                tabItem(tabName = "onebivars",
+                        titlePanel(h2("Exploratory Data Analysis")),
                         fluidRow(
-                            box(varSelectInput("variable", "Select a variable:", data)),
-                            box(tableOutput("table1"))
-                            )
+                            column(6,varSelectInput("var1", "Select a variable to explore:", data)),
+                            column(6,tableOutput("table1"))
                         ),
+                        fluidRow(
+                            box(title="One-Way Distribution",
+                                plotOutput("plot1")),
+                            box(title="Selected Response Variable vs. Fatal Target Variable",
+                                plotOutput("plot2"))
+                        ),
+                ),
+                # SEcond tab content - third submenu
+                tabItem(tabName = "bivarsnum",
+                        fluidRow(
+                            box(title=h3("Bivariate Plot of the Two Numeric Response Variables"),
+                                plotOutput("bivarsnum"))
+                        )
+                ),
                 # Third tab content
                 tabItem(tabName = "unsup",
                         fluidRow(
