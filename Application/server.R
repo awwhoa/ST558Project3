@@ -4,55 +4,39 @@ library(shinydashboard)
 library(readr)
 library(DT)
 library(ggplot2)
-library(gbm)
+# library(gbm)
 library(dplyr)
 library(magrittr)
 library(knitr)
-
-# runGitHub("ST558Project3", "awwhoa")
-
-# output$downloadData <- downloadHandler(
-#     filename = function() { paste(input$dataset, '.csv', sep='') },
-#     content = function(file) {
-#         write.csv(datasetInput(), file)
-#     }
-# )
+library(RCurl)
 
 shinyServer(function(input, output, session) {
-    data <- as.data.frame(read_csv("https://raw.githubusercontent.com/awwhoa/ST558Project3/master/AnalysisDataset.csv"))
+
+    # create the drop down box one-way EDA variable selection
+    selectData <- reactive({
+        newData <- data %>% select(!!input$variable)
+        if(!!input$variable == "Fatal" | 
+           !!input$variable == "Total.Passengers" |
+           !!input$variable == "Total.Injuries"){
+            table(summary(newData), dnn=names(newData))
+        } else {
+            table(newData, dnn=names(newData))
+        }
+        })
     
-    output$myList <- renderUI(HTML("<ul><li>...text...</li><li>...more text...</li></ul>"))
-    
-    # datafile = "https://raw.githubusercontent.com/awwhoa/ST558Project3/master/AnalysisDataset.csv"
-    # data = tbl_df(read.table(datafile,header=T,as.is=F,sep=",")) 
+    output$table1 <- renderTable({
+        selectData()
+    })
         
-    # getData <- reactive({
-    #     newData <- data %>% select(!!!input$variable)
-    #     table(newData, dnn=!!!input$variable)
-    # })
-
-    #create output of observations    
-    output$table <- renderTable(data)
-    output$table
-
+    # create the datatable for tab 5
+    getData <- reactive({
+        data
+    })
+    
+    output$datatable <- renderDataTable({
+        getData()
+    })
+    
 })
 
-    # tryThis <- reactive({
-    #     # newData <- data %>% dplyr::select(Aircraft.Damage)
-    #     # table(newData, dnn="Aircraft.Damage")
-    #     # summary(newData)
-    #     
-    #     # if(is.numeric(x)){
-    #     #     summary(x)
-    #     # } else if(is.factor(x)){
-    #     #     table(x) %>% knitr::kable(col.names=c("Variable","Frequency"))
-    #     # } else {
-    #     #     break()
-    # })
-    # 
-    # output$table <- renderTable({
-    #     # table(getData(), dnn="Aircraft.Damage")
-    #     # table(getData(), dnn=!input$variable)
-    #     getData()
-    # })
 
