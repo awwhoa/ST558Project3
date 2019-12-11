@@ -20,10 +20,12 @@ shinyUI(
                 menuItem("Start Here", tabName = "start"),
                 # downloadButton('downloadData', 'Download'),
                 menuItem("EDA", tabName = "eda"),
-                         menuSubItem("One-Ways & Bivariates", tabName="onebivars"),
                          # menuSubItem("Bivariates - Target", tabName="bivarstgt"),
-                         menuSubItem("Bivariates - Numerics", tabName="bivarsnum"),
-                         menuSubItem("Cluster or PCA", tabName="unsuper"),
+                         # numeric EDA, including tables/summaries of Fatal target variable
+                         menuSubItem("Numeric Variables", tabName="numvars"),
+                         # categorical EDA 
+                         menuSubItem("Categorical Variables", tabName="catvars"),
+                         menuSubItem("Clustering", tabName="unsuper"),
                 menuItem("Models", tabName = "model"),
                          menuSubItem("Logistic Regression", tabName="log"),
                          menuSubItem("Classification Tree", tabName="tree"),
@@ -37,7 +39,7 @@ shinyUI(
                         fluidRow(
                             column(12,
                                    h2("About the data"),
-                                   "This dataset is a subset of the National Transportation Safety Board's Aviation Accident Database. The original database contains information about civil aviation accidents and incidents that occurred within the United States from 1962 to present day. Due to large number of records and variables in the original dataset, a subset of approximately 3,000 records and 10 variables are included with this application. This subset focuses on accidents or incidents by airplanes or helicopters that... The target variable is Fatal, which indicates if at least one person perished due to an accident or incident.",
+                                   "This dataset is a subset of the National Transportation Safety Board's Aviation Accident Database. The original database contains information about civil aviation accidents and incidents that occurred within the United States from 1962 to present day. Due to large number of records and variables in the original dataset, a subset of approximately 3,000 records and 10 variables are included with this application. This subset has been cleaned and pre-processed to facilitate data exploration and modeling. It focuses primarily on accidents or incidents by airplanes or helicopters. The target variable is Fatal, which indicates if at least one person perished due to an aviation accident or incident.",
                                    br(),br(),
                                    "Below are descriptions of the variables included in this application:",
                                    br(),br()),
@@ -57,8 +59,7 @@ shinyUI(
                                    </ul>")))
                         ),
                 # Second tab content - first submenu
-                tabItem(tabName = "onebivars",
-                        titlePanel(h2("Exploratory Data Analysis")),
+                tabItem(tabName = "catvars",
                         fluidRow(
                             column(6,varSelectInput("var1", "Select a variable to explore:", data)),
                             column(6,tableOutput("table1"))
@@ -66,22 +67,48 @@ shinyUI(
                         fluidRow(
                             box(title="One-Way Distribution",
                                 plotOutput("plot1")),
-                            box(title="Selected Response Variable vs. Fatal Target Variable",
+                            box(title="Selected Predictor vs. Fatal Response",
                                 plotOutput("plot2"))
                         ),
                 ),
-                # SEcond tab content - third submenu
-                tabItem(tabName = "bivarsnum",
+                # Second tab content - third submenu
+                tabItem(tabName = "numvars",
+                        titlePanel(h3("The Response Variable")),
                         fluidRow(
-                            box(title=h3("Bivariate Plot of the Two Numeric Response Variables"),
-                                plotOutput("bivarsnum"))
+                          box(title="Distribution of Fatal",
+                              tableOutput("fatal")),
+                          box(title="Numeric Summary of Fatal",
+                              tableOutput("sumfatal"))
+                        ),
+                        titlePanel(h3("The Predictor Variables")),
+                        fluidRow(
+                            box(title="Distribution of Total Passengers Per Incident",
+                                plotOutput("pass")),
+                            box(title="Numeric Summary of Total Passengers",
+                                tableOutput("sumpass")),
+                        ),
+                        fluidRow(
+                            box(title="Distribution of Total Injuries Per Incident",
+                                plotOutput("injur")),
+                            box(title="Numeric Summary of Total Injuries",
+                                tableOutput("suminjur")),
+                        ),
+                        titlePanel(h3("Scatterplot of the Two Numeric Predictors")),
+                        fluidRow(
+                            box(plotOutput("bivarsnum"))
                         )
                 ),
                 # Third tab content
-                tabItem(tabName = "unsup",
-                        fluidRow(
-                            box(textOutput("morestuff1"))
-                        )
+                tabItem(tabName = "unsuper",
+                        titlePanel(h3("Cluster Dendogram for Total Passengers and Total Injuries")),
+                        # selectInput('xclus', 'X Variable', names(numSubset)),
+                        # selectInput('yclus', 'Y Variable', names(numSubset),
+                        #             selected=names(numSubset)[[2]]),
+                        numericInput('clusters', 'Select number of clusters', 
+                                     value = 3, min = 1, max = 9),
+                        numericInput('iteration', 'Selected number of algorithm iterations', 
+                                     value = 1, min = 1, max = 10),
+                        plotOutput("plotclus")
                 ),
                 # Fourth tab content
                 tabItem(tabName = "super",
