@@ -5,3 +5,10 @@ data <- as.data.frame(unclass(read.csv('https://raw.githubusercontent.com/awwhoa
 
 # Subset only numeric variables from dataset
 numSubset <- as.data.frame(unclass(select(data, c("Total.Passengers","Total.Injuries","Fatal"))))
+
+
+# Subset only numeric variables from dataset
+catSubset <- as.data.frame(unclass(select(data, -c("Total.Passengers","Total.Injuries","Fatal"))))
+
+
+testDownData <- data

@@ -61,14 +61,18 @@ shinyUI(
                 # Second tab content - first submenu
                 tabItem(tabName = "catvars",
                         fluidRow(
-                            column(6,varSelectInput("var1", "Select a variable to explore:", data)),
-                            column(6,tableOutput("table1"))
+                            column(6,varSelectInput("var1", "Select a variable to explore:", catSubset)),
+                            column(6,tableOutput("table1")),
                         ),
                         fluidRow(
                             box(title="One-Way Distribution",
-                                plotOutput("plot1")),
+                                plotOutput("plot1"),
+                                br(),
+                            downloadButton('downloadPlot1','Download this plot')),
                             box(title="Selected Predictor vs. Fatal Response",
-                                plotOutput("plot2"))
+                                plotOutput("plot2"),
+                                br(),
+                            downloadButton('downloadPlot2','Download this plot')),
                         ),
                 ),
                 # Second tab content - third submenu
@@ -100,15 +104,15 @@ shinyUI(
                 ),
                 # Third tab content
                 tabItem(tabName = "unsuper",
-                        titlePanel(h3("Cluster Dendogram for Total Passengers and Total Injuries")),
-                        # selectInput('xclus', 'X Variable', names(numSubset)),
-                        # selectInput('yclus', 'Y Variable', names(numSubset),
-                        #             selected=names(numSubset)[[2]]),
+                        titlePanel("Interactive Clustering Plot for Total Passengers and Total Injuries"),
                         numericInput('clusters', 'Select number of clusters', 
-                                     value = 3, min = 1, max = 9),
-                        numericInput('iteration', 'Selected number of algorithm iterations', 
-                                     value = 1, min = 1, max = 10),
-                        plotOutput("plotclus")
+                                     value = 3, min = 1, max = 10),
+                        numericInput('iteration', 'Select number of algorithm iterations', 
+                                     value = 3, min = 1, max = 10),
+                        plotOutput("plotclus"),
+                        # downloadButton('downloadPlot','Download cluster plot to .png file'),
+                        titlePanel("Dendrogram for Total Passengers and Total Injuries"),
+                        plotOutput("dendro")
                 ),
                 # Fourth tab content
                 tabItem(tabName = "super",
@@ -121,7 +125,9 @@ shinyUI(
                         fluidRow(
                             column(12,
                                    DT::dataTableOutput("datatable"))
-                        )
+                        ),
+                        br(),
+                        downloadButton('downloadData', 'Download entire modeling dataset to a .csv file')
                 )
             )
         )

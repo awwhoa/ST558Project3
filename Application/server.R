@@ -48,24 +48,36 @@ shinyServer(function(input, output, session) {
             labs(y="Count of Fatal Incidents")
     })
     
-    # select the appropriate one-way plot based on user selection
+    # create the categorical one-way plots (based on user variable selection)
     output$plot1 <- renderPlot({
-        if(!!input$var1 == "Total.Passengers" |
-           !!input$var1 == "Total.Injuries"){
-            plotDot() + labs(y="Count")
-        } else {
             plotBar()
-        }
-    })
-    
-    output$plot2 <- renderPlot({
-            plotBivarTarget()
     })
     
     # select the appropriate bivariate plot based on user selection
     output$plot2 <- renderPlot({
         plotBivarTarget()
     })
+
+    # create download for categorical plot1
+    output$downloadPlot1 <- downloadHandler(
+        filename = function() { paste('PlotFreq', input$var1, '.png', sep='') },
+        content = function(file) {
+            device <- function(..., width, height) 
+                grDevices::png(..., width = width, height = height, res = 300, units = "in")
+            ggsave(file, plot = plotBar(), device = device)
+        }
+    )
+    
+    # create download for categorical plot2
+    output$downloadPlot2 <- downloadHandler(
+        filename = function() { paste('PlotFreq', input$var1, 'byFatal', '.png', sep='') },
+        content = function(file) {
+            device <- function(..., width, height) 
+                grDevices::png(..., width = width, height = height, res = 300, units = "in")
+            ggsave(file, plot = plotBivarTarget(), device = device)
+        }
+    )
+    
     
     # NUMERIC VARIABLE EXPLORATION
     output$fatal <- renderTable({
@@ -142,7 +154,7 @@ shinyServer(function(input, output, session) {
     # CLUSTERING TAB        
     # Combine user-selected variables into a new data frame
     selectClusterData <- reactive({
-        numSubset[, c(input$xlcus, input$yclus)]
+        data[, c("Total.Passengers","Total.Injuries")]
     })
     
     clusters <- reactive({
@@ -163,12 +175,28 @@ shinyServer(function(input, output, session) {
         points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
     })
     
-    output$plotclus <- renderPlot({
-        hierClust <- hclust(dist(data.frame(data$Total.Passengers, data$Total.Injuries)))
-        plot(hierClust, xlab = "")
+    observe({
+        updateNumericInput(session, "clusters")
     })
     
-    knitr::include_graphics("hierClust.PNG")
+    observe({
+        updateNumericInput(session, "iteration")
+    })
+    
+    # Button to download current version fo interactive cluster plot
+    # output$downloadPlot <- downloadHandler(
+    #     filename = function() {
+    #         paste('ClusterPlot-', Sys.Date(), '.png', sep='')
+    #     },
+    #     content = function(con) {
+    #         ggsave("cluster plot", input$plotclus)
+    #     }
+    # )
+    
+    output$dendro <- renderPlot({ ### HOW DO I INCLUDE INPUTS FOR THIS THING ????
+        hcl <- hclust(dist(data.frame(data$Total.Passengers, data$Total.Injuries)))
+        plot(hcl, xlab = "")
+    })
     
     ### Tab 5: Data Table of all Data ###    !!!!! FIND TEH WAY TO SET UP USER DOWNLOADS FROM THE FOR THIS DATA TABLE
     # create the datatable for tab 5
@@ -179,6 +207,16 @@ shinyServer(function(input, output, session) {
     output$datatable <- renderDataTable({
         getData()
     })
+    
+    # Button to download entire modelign data file from the data table page
+    output$downloadData <- downloadHandler(
+        filename = function() {
+            paste('AviationData-', Sys.Date(), '.csv', sep='')
+        },
+        content = function(con) {
+            write.csv(data, con)
+        }
+    )
     
 })
 
