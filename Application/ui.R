@@ -1,15 +1,6 @@
 
 library(shiny)
 library(shinydashboard)
-library(readr)
-library(DT)
-library(ggplot2)
-library(gbm)
-library(dplyr)
-library(magrittr)
-library(knitr)
-library(RCurl)
-
 
 shinyUI(
     dashboardPage(skin="yellow",
@@ -52,10 +43,10 @@ shinyUI(
                                    h2("What this application does"),
                                    uiOutput("myList"),
                                    HTML("<ul>
-                                   <li>Perform exploratory data analysis</li>
-                                   <li>Create an unsupervised model</li>
-                                   <li>Create some supervised models</li>
-                                   <li>View, subset, and explore the data</li>
+                                   <li>Perform exploratory data analysis on the dataset variables</li>
+                                   <li>Create cluster and dendrogram charts</li>
+                                   <li>Create ogistic regression and tred models</li>
+                                   <li>View, explore, and download the analysis dataset</li>
                                    </ul>")))
                         ),
                 # Second tab content - first submenu
@@ -84,22 +75,24 @@ shinyUI(
                           box(title="Numeric Summary of Fatal",
                               tableOutput("sumfatal"))
                         ),
-                        titlePanel(h3("The Predictor Variables")),
+                        titlePanel(h3("The Numeric Predictors")),
                         fluidRow(
-                            box(title="Distribution of Total Passengers Per Incident",
-                                plotOutput("pass")),
-                            box(title="Numeric Summary of Total Passengers",
-                                tableOutput("sumpass")),
-                        ),
+                            column(12,varSelectInput("numvar", "Select a variable to explore:", numPredSubset)),
+                            box(title="Numeric Summary",
+                                tableOutput("sum"))
+                            ),
                         fluidRow(
-                            box(title="Distribution of Total Injuries Per Incident",
-                                plotOutput("injur")),
-                            box(title="Numeric Summary of Total Injuries",
-                                tableOutput("suminjur")),
-                        ),
-                        titlePanel(h3("Scatterplot of the Two Numeric Predictors")),
+                            box(title="Distribution of the Variable",
+                                plotOutput("pass"))
+                            ),
                         fluidRow(
-                            box(plotOutput("bivarsnum"))
+                            box(title="Proportion of Fatal Incidents ",
+                                plotOutput("propfatal"))
+                            ),
+                        titlePanel(h3("Scatterplot of Total Passengers and Total Injuries by Fatal")),
+                        fluidRow(
+                            verbatimTextOutput("info"),
+                            plotOutput("bivarsnum",hover = "plot_hover")
                         )
                 ),
                 # Third tab content
@@ -108,9 +101,8 @@ shinyUI(
                         numericInput('clusters', 'Select number of clusters', 
                                      value = 3, min = 1, max = 10),
                         numericInput('iteration', 'Select number of algorithm iterations', 
-                                     value = 3, min = 1, max = 10),
+                                     value = 3, min = 3, max = 10),
                         plotOutput("plotclus"),
-                        # downloadButton('downloadPlot','Download cluster plot to .png file'),
                         titlePanel("Dendrogram for Total Passengers and Total Injuries"),
                         plotOutput("dendro")
                 ),

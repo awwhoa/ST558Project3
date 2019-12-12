@@ -2,11 +2,14 @@
 # Read in the data file to use
 data <- as.data.frame(unclass(read.csv('https://raw.githubusercontent.com/awwhoa/ST558Project3/master/Data/AnalysisDatasetSmall.csv',stringsAsFactors = F,header=T)))
 
-
-# Subset only numeric variables from dataset
+# Create subset of numeric variables from analysis dataset
 numSubset <- as.data.frame(unclass(dplyr::select(data, c("Total.Passengers","Total.Injuries","Fatal"))))
 
+# Create subset of numeric variables from analysis dataset
+numPredSubset <- as.data.frame(unclass(dplyr::select(data, c("Total.Passengers","Total.Injuries"))))
 
-# Subset only numeric variables from dataset
+# Create subset of categorical variables from analysis dataset
 catSubset <- as.data.frame(unclass(dplyr::select(data, -c("Total.Passengers","Total.Injuries","Fatal"))))
 
+# Create subset of predictor variables from analysis dataset
+predSubset <- as.data.frame(unclass(dplyr::select(data, -c("Fatal"))))
