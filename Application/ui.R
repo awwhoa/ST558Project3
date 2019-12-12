@@ -8,37 +8,43 @@ shinyUI(
                         titleWidth = 450),
         dashboardSidebar(
             sidebarMenu(
-                menuItem("Start Here", tabName = "start"),
-                # downloadButton('downloadData', 'Download'),
-                menuItem("EDA", tabName = "eda"),
-                         # menuSubItem("Bivariates - Target", tabName="bivarstgt"),
-                         # numeric EDA, including tables/summaries of Fatal target variable
-                         menuSubItem("Numeric Variables", tabName="numvars"),
-                         # categorical EDA 
-                         menuSubItem("Categorical Variables", tabName="catvars"),
-                         menuSubItem("Clustering", tabName="unsuper"),
-                menuItem("Models", tabName = "model"),
-                         menuSubItem("Logistic Regression", tabName="log"),
-                         menuSubItem("Classification Tree", tabName="tree"),
-                menuItem("Give Me All the Data", tabName = "all")
+                menuItem("About", tabName = "tabstart"),
+                menuItem("EDA", tabName = "tabeda"),
+                         menuSubItem("Numeric Variables", tabName="tabnumvars"),
+                         menuSubItem("Categorical Variables", tabName="tabcatvars"),
+                menuItem("Unsupervised Learning", tabName="unsup"),
+                         menuSubItem("Clustering", tabName="tabcluster"),
+                menuItem("Models", tabName = "tabmodel"),
+                         menuSubItem("Logistic Regression", tabName="tablog"),
+                         menuSubItem("Classification Tree", tabName="tabtree"),
+                menuItem("Give Me All the Data", tabName = "taball")
             )
         ),
         dashboardBody(
             tabItems(
-                # First tab content
-                tabItem(tabName = "start",
+                tabItem(tabName = "tabstart",
                         fluidRow(
                             column(12,
                                    h2("About the data"),
-                                   "This dataset is a subset of the National Transportation Safety Board's Aviation Accident Database. The original database contains information about civil aviation accidents and incidents that occurred within the United States from 1962 to present day. Due to large number of records and variables in the original dataset, a subset of approximately 3,000 records and 10 variables are included with this application. This subset has been cleaned and pre-processed to facilitate data exploration and modeling. It focuses primarily on accidents or incidents by airplanes or helicopters. The target variable is Fatal, which indicates if at least one person perished due to an aviation accident or incident.",
+                                   "This dataset is a subset of the National Transportation Safety Board's Aviation
+                                   Accident Database. The original database contains information about civil aviation
+                                   accidents and incidents that occurred within the United States from 1962 to present
+                                   day. Due to large number of records and variables in the original dataset, a subset
+                                   of approximately 3,000 records and 10 variables are included with this application.
+                                   This subset has been cleaned and pre-processed to facilitate data exploration and
+                                   modeling. It focuses primarily on accidents or incidents by airplanes or helicopters.
+                                   The target variable is Fatal, which indicates if at least one person perished due to
+                                   an aviation accident or incident.",
                                    br(),br(),
                                    "Below are descriptions of the variables included in this application:",
                                    br(),br()),
                             column(12,
                                    "More information about the original database can be found at",
-                                   HTML("<a href=https://catalog.data.gov/dataset/aviation-data-and-documentation-from-the-ntsb-accident-database-system>here,</a>"),
+                                   HTML("<a href=https://catalog.data.gov/dataset/aviation-data-and-documentation-from
+                                        -the-ntsb-accident-database-system>here,</a>"),
                                    "and the full data dictionary can be found",
-                                   HTML("<a href=https://www.ntsb.gov/_layouts/ntsb.aviation/AviationDownloadDataDictionary.aspx>here</a>."),
+                                   HTML("<a href=https://www.ntsb.gov/_layouts/ntsb.aviation/AviationDownloadDataDictio
+                                        nary.aspx>here</a>."),
                                    br(),br(),
                                    h2("What this application does"),
                                    uiOutput("myList"),
@@ -49,8 +55,8 @@ shinyUI(
                                    <li>View, explore, and download the analysis dataset</li>
                                    </ul>")))
                         ),
-                # Second tab content - first submenu
-                tabItem(tabName = "catvars",
+                # EDA:  Numeric Variables
+                tabItem(tabName = "tabcatvars",
                         fluidRow(
                             column(6,varSelectInput("var1", "Select a variable to explore:", catSubset)),
                             column(6,tableOutput("table1")),
@@ -66,8 +72,8 @@ shinyUI(
                             downloadButton('downloadPlot2','Download this plot')),
                         ),
                 ),
-                # Second tab content - third submenu
-                tabItem(tabName = "numvars",
+                # EDA: Categorical Variables
+                tabItem(tabName = "tabnumvars",
                         titlePanel(h3("The Response Variable")),
                         fluidRow(
                           box(title="Distribution of Fatal",
@@ -83,40 +89,64 @@ shinyUI(
                             ),
                         fluidRow(
                             box(title="Distribution of the Variable",
-                                plotOutput("pass"))
-                            ),
-                        fluidRow(
+                                plotOutput("pass")),
                             box(title="Proportion of Fatal Incidents ",
                                 plotOutput("propfatal"))
                             ),
                         titlePanel(h3("Scatterplot of Total Passengers and Total Injuries by Fatal")),
+                        titlePanel(h4("Hover over a point in the plot to view the total number of
+                                      passengers and number of injured passengers in a given accident")),
                         fluidRow(
+                            column(12,
                             verbatimTextOutput("info"),
-                            plotOutput("bivarsnum",hover = "plot_hover")
+                            plotOutput("bivarsnum",hover = "plot_hover"))
                         )
                 ),
-                # Third tab content
-                tabItem(tabName = "unsuper",
+                # Clustering content
+                tabItem(tabName = "tabcluster",
                         titlePanel("Interactive Clustering Plot for Total Passengers and Total Injuries"),
-                        numericInput('clusters', 'Select number of clusters', 
+                        column(4,
+                        numericInput('clusters', 'Select number of clusters',
                                      value = 3, min = 1, max = 10),
-                        numericInput('iteration', 'Select number of algorithm iterations', 
-                                     value = 3, min = 3, max = 10),
-                        plotOutput("plotclus"),
+                        numericInput('iteration', 'Select number of algorithm iterations',
+                                     value = 3, min = 3, max = 10)),
+                        column(8,
+                        plotOutput("plotclus")),
                         titlePanel("Dendrogram for Total Passengers and Total Injuries"),
                         plotOutput("dendro")
                 ),
-                # Fourth tab content
-                tabItem(tabName = "super",
+                # Models:  Logistic Regression Content
+                tabItem(tabName = "tablog",
+                        titlePanel("Build Your Own Logistic Regression Model"),
                         fluidRow(
-                            box(textOutput("morestuff2"))
+                            column(12,(h4("The logistic regression technique used to build this model uses a form of
+                            the general binomial equation: ")))
+                        ),
+                        br(),
+                        fluidRow(
+                            column(4,
+                            selectInput('predlog1', 'Select first predictor:', names(train)),
+                            selectInput('predlog2', 'Select second predictor:', names(train),
+                                        selected=names(train)[[2]]),
+                            selectInput('predlog3', 'Select third predictor:', names(train),
+                                        selected=names(train)[[3]]),
+                            actionButton("go","Build model")),
+                            column(8,
+                                   uiOutput("regmodel"))
+                        )
+                ),
+                # Models:  Classification Tree Content
+                tabItem(tabName = "tabtree",
+                        titlePanel("Build Your Own Classification Tree Model"),
+                        fluidRow(
+                            column(4,
+                                   numericInput('ntrees', 'Enter number of trees:', value=100))
                         )
                 ),
                 # Fifth tab content
-                tabItem(tabName = "all",
+                tabItem(tabName = "taball",
                         fluidRow(
-                            column(12,
-                                   DT::dataTableOutput("datatable"))
+                            column(12, DT::dataTableOutput("datatable"))
                         ),
                         br(),
                         downloadButton('downloadData', 'Download entire modeling dataset to a .csv file')

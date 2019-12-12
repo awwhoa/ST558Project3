@@ -10,7 +10,8 @@ library(magrittr)
 library(knitr)
 library(RCurl)
 library(plotly)
-# library(kable)
+library(LiblineaR)
+library(randomForest)
 
 shinyServer(function(input, output, session) {
 
@@ -151,15 +152,14 @@ shinyServer(function(input, output, session) {
     })
     
     # make the numeric predictor bivariate plot clickable
-    output$info <- renderText({
-        xy_str <- function(e) {
-            if(is.null(e)) return("Hover over point in the plot")
-            paste0(round(e$x, 0), " total passengers and ", round(e$y, 0), " total injuries")
-        }
-        xy_str(input$plot_hover)
-    })
+    # output$info <- renderText({
+    #     xy_str <- function(e) {
+    #         if(is.null(e)) return("")
+    #         paste0(round(e$x, 0), " total passengers and ", round(e$y, 0), " total injuries")
+    #     }
+    #     xy_str(input$plot_hover)
+    # })
     
-
     ### Tab 3:  Clustering ###
     # Combine user-selected variables into a new data frame
     selectClusterData <- reactive({
@@ -218,6 +218,10 @@ shinyServer(function(input, output, session) {
         }
     )
     
+    ##### Modeling:  Logistic Regression #####
+    
+    
+
 })
 
 
