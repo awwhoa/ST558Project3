@@ -13,6 +13,7 @@ library(plotly)
 library(LiblineaR)
 library(randomForest)
 
+
 shinyServer(function(input, output, session) {
 
     ### Tab 2: EDA ###
@@ -197,6 +198,47 @@ shinyServer(function(input, output, session) {
         hcl <- hclust(dist(data.frame(data$Total.Passengers, data$Total.Injuries)))
         plot(hcl, xlab = "")
     })
+    
+    ##### Tab 4:  Regression Model #####
+    # build the glm equation 
+    buildGLM <- eventReactive(input$go, {
+        var1 <- !!!input$predlog1
+        var2 <- !!!input$predlog2
+        var3 <- !!!input$predlog3
+        fit <- glm(Fatal ~ var1 + var2 + var3,
+                   family="binomial",
+                   data=train)
+        summary(fit)
+    })
+    
+    output$regmodel <- renderPrint({
+        buildGLM()
+    })
+    
+    
+    # try a linear regression model
+    buildLM <- eventReactive(input$go, {
+        var1 <- !!input$predlog1
+        # var2 <- !!input$predlog2
+        # var3 <- !!input$predlog3
+        f <- as.formula(Fatal ~ var1, data=train)
+        # fit <- lm(Total.Injuries ~ var1,# + var2 + var3,
+        #           data=train)
+        summary(fit)
+    })
+    
+    output$regmodel <- renderPrint({
+        buildLM()
+        # "success"
+    })
+    
+    # try the thing found at stackoverflow
+    mlt <- reactive({
+        reformulate(input$dep, Fatal)
+        
+    })
+    
+    
     
     ### Tab 5: Data Table of all Data ###    
     # create the datatable for tab 5

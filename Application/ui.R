@@ -15,7 +15,7 @@ shinyUI(
                 menuItem("Unsupervised Learning", tabName="unsup"),
                          menuSubItem("Clustering", tabName="tabcluster"),
                 menuItem("Models", tabName = "tabmodel"),
-                         menuSubItem("Logistic Regression", tabName="tablog"),
+                         menuSubItem("Logistic Regression", tabName="tabreg"),
                          menuSubItem("Classification Tree", tabName="tabtree"),
                 menuItem("Give Me All the Data", tabName = "taball")
             )
@@ -115,9 +115,9 @@ shinyUI(
                         titlePanel("Dendrogram for Total Passengers and Total Injuries"),
                         plotOutput("dendro")
                 ),
-                # Models:  Logistic Regression Content
-                tabItem(tabName = "tablog",
-                        titlePanel("Build Your Own Logistic Regression Model"),
+                # Models:  Regression Content
+                tabItem(tabName = "tabreg",
+                        titlePanel("Build Your Own Logistic? Regression Model"),
                         fluidRow(
                             column(12,(h4("The logistic regression technique used to build this model uses a form of
                             the general binomial equation: ")))
@@ -125,14 +125,15 @@ shinyUI(
                         br(),
                         fluidRow(
                             column(4,
-                            selectInput('predlog1', 'Select first predictor:', names(train)),
-                            selectInput('predlog2', 'Select second predictor:', names(train),
-                                        selected=names(train)[[2]]),
-                            selectInput('predlog3', 'Select third predictor:', names(train),
-                                        selected=names(train)[[3]]),
-                            actionButton("go","Build model")),
+                            selectInput('predlog1', 'Select independent variable(s):', names(train)),
+                            # varSelectInput('predlog2', 'Select second predictor:', predSubset,multiple=TRUE),
+                                        # selected=names(predSubset)[[2]]),
+                            # varSelectInput('predlog3', 'Select third predictor:', predSubset, multiple=TRUE),
+                                        # selected=names(predSubset)[[3]]),
+                            actionButton("go","Build model"),
+                            ),
                             column(8,
-                                   uiOutput("regmodel"))
+                                   verbatimTextOutput("regmodel"))
                         )
                 ),
                 # Models:  Classification Tree Content
