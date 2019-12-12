@@ -138,7 +138,8 @@ shinyServer(function(input, output, session) {
     
     # create the bivariate plot between two numeric response variables
     plotBivarResponseNumeric <- reactive({
-        ggplot(data, aes(x=Total.Passengers, y=Total.Injuries)) + geom_point(colour="orange")
+        ggplot(data, aes(x=Total.Passengers, y=Total.Injuries)) + 
+            geom_point(colour="orange")
     })
     
     plotBivarResponse <- reactive({
@@ -147,19 +148,18 @@ shinyServer(function(input, output, session) {
     })
     
     # create the bivariate plot of the two numeric predictors
-    # #### INCLUDE AN ADDITIONAL OPTION/PLOT/conditional panel TO HIGHLIGHT THOSE THAT WERE FATAL
     output$bivarsnum <- renderPlot({
         plotBivarResponseNumeric()
     })
     
     # make the numeric predictor bivariate plot clickable
-    # output$info <- renderText({
-    #     xy_str <- function(e) {
-    #         if(is.null(e)) return("")
-    #         paste0(round(e$x, 0), " total passengers and ", round(e$y, 0), " total injuries")
-    #     }
-    #     xy_str(input$plot_hover)
-    # })
+    output$info <- renderText({
+        xy_str <- function(e) {
+            if(is.null(e)) return("")
+            paste0(round(e$x, 0), " total passengers and ", round(e$y, 0), " total injuries")
+        }
+        xy_str(input$hover)
+    })
     
     ### Tab 3:  Clustering ###
     # Combine user-selected variables into a new data frame
@@ -175,7 +175,7 @@ shinyServer(function(input, output, session) {
                algorithm = "MacQueen")
     })
     
-    # ADD INTERACTIVITY TO THIS CLUSTER PLOT IF POSSIBLE
+    # generate interactive cluster plot
     output$plotclus <- renderPlot({
         palette(c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
                   "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999"))
@@ -199,47 +199,7 @@ shinyServer(function(input, output, session) {
         plot(hcl, xlab = "")
     })
     
-    ##### Tab 4:  Regression Model #####
-    # build the glm equation 
-    buildGLM <- eventReactive(input$go, {
-        var1 <- !!!input$predlog1
-        var2 <- !!!input$predlog2
-        var3 <- !!!input$predlog3
-        fit <- glm(Fatal ~ var1 + var2 + var3,
-                   family="binomial",
-                   data=train)
-        summary(fit)
-    })
-    
-    output$regmodel <- renderPrint({
-        buildGLM()
-    })
-    
-    
-    # try a linear regression model
-    buildLM <- eventReactive(input$go, {
-        var1 <- !!input$predlog1
-        # var2 <- !!input$predlog2
-        # var3 <- !!input$predlog3
-        f <- as.formula(Fatal ~ var1, data=train)
-        # fit <- lm(Total.Injuries ~ var1,# + var2 + var3,
-        #           data=train)
-        summary(fit)
-    })
-    
-    output$regmodel <- renderPrint({
-        buildLM()
-        # "success"
-    })
-    
-    # try the thing found at stackoverflow
-    mlt <- reactive({
-        reformulate(input$dep, Fatal)
-        
-    })
-    
-    
-    
+
     ### Tab 5: Data Table of all Data ###    
     # create the datatable for tab 5
     getData <- reactive({
@@ -261,9 +221,40 @@ shinyServer(function(input, output, session) {
     )
     
     ##### Modeling:  Logistic Regression #####
+    ##### Tab 4:  Regression Model #####
+    # Build and fit the logistic regression model
+    fitGLM <- eventReactive(input$go, {
+        fit <- glm(as.formula(paste("Fatal ~ ",
+                                    paste0(input$indvar, collapse="+"))),
+                   data=train,
+                   family=binomial)
+        summary(fit)
+    })
+    # run anova stats
+    fitANOVA <- reactive({
+        fit <- glm(as.formula(paste("Fatal ~ ",
+                                    paste0(input$indvar, collapse="+"))),
+                   data=train,
+                   family=binomial)
+        anova(fit)
+    })
+    # calculate misclassification rate
     
-    
-
+    # generate initial model output
+    output$regoutput <- renderPrint({
+        fitGLM()
+       if(input$selectout == "ANOVA summary") {
+           # then switch to user-selected output
+           observe({updateSelectInput(session,"regoutput")})
+           fitANOVA()
+       } else if(input$selectout == "Prediction misclassification rate") {
+           "wtf"
+       } else {
+           fitGLM()
+       }
+    })
 })
+
+# })
 
 

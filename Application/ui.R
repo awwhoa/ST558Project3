@@ -9,14 +9,17 @@ shinyUI(
         dashboardSidebar(
             sidebarMenu(
                 menuItem("About", tabName = "tabstart"),
-                menuItem("EDA", tabName = "tabeda"),
-                         menuSubItem("Numeric Variables", tabName="tabnumvars"),
-                         menuSubItem("Categorical Variables", tabName="tabcatvars"),
-                menuItem("Unsupervised Learning", tabName="unsup"),
-                         menuSubItem("Clustering", tabName="tabcluster"),
-                menuItem("Models", tabName = "tabmodel"),
-                         menuSubItem("Logistic Regression", tabName="tabreg"),
-                         menuSubItem("Classification Tree", tabName="tabtree"),
+                menuItem("EDA", tabName = "tabeda",
+                         menuItem("Numeric Variables", tabName="tabnumvars"), # numeric one-ways
+                         menuItem("Categorical Variables", tabName="tabcatvars")),  # categorical one-ways #include another 2nd level tab for bivariates acorss the dataset if time
+                menuItem("Unsupervised Learning", tabName="unsup", 
+                         menuItem("Clustering", tabName="tabcluster"),
+                         menuItem("Dendrogram", tabName="tabdendro")),
+                menuItem("Supervised Learning Models", tabName = "tabmodel",
+                         menuItem("Logistic Regression", tabName="tabreg",
+                                  menuSubItem("Fit the model", tabName="tabfitmodel"),
+                                  menuSubItem("Make predictions", tabName="tabpredict")),
+                         menuItem("Classification Tree", tabName="tabtree")),
                 menuItem("Give Me All the Data", tabName = "taball")
             )
         ),
@@ -46,13 +49,17 @@ shinyUI(
                                    HTML("<a href=https://www.ntsb.gov/_layouts/ntsb.aviation/AviationDownloadDataDictio
                                         nary.aspx>here</a>."),
                                    br(),br(),
-                                   h2("What this application does"),
+                                   h2("What you can do with this application"),
                                    uiOutput("myList"),
                                    HTML("<ul>
                                    <li>Perform exploratory data analysis on the dataset variables</li>
-                                   <li>Create cluster and dendrogram charts</li>
-                                   <li>Create ogistic regression and tred models</li>
-                                   <li>View, explore, and download the analysis dataset</li>
+                                   <ul>
+                                   <li>8 categorical variables</il>
+                                   <li>2 numeric variables</il>
+                                   </ul>
+                                   <li>Perform supervised learning activities</li>
+                                   <li>Fit two different supervised learning models and make predictions</li>
+                                   <li>View, subset, and download the analysis data</li>
                                    </ul>")))
                         ),
                 # EDA:  Numeric Variables
@@ -94,12 +101,13 @@ shinyUI(
                                 plotOutput("propfatal"))
                             ),
                         titlePanel(h3("Scatterplot of Total Passengers and Total Injuries by Fatal")),
-                        titlePanel(h4("Hover over a point in the plot to view the total number of
-                                      passengers and number of injured passengers in a given accident")),
+                        # titlePanel(h4("Hover over a point in the plot to view the total number of
+                        #               passengers and number of injured passengers in a given accident")),
                         fluidRow(
-                            column(12,
-                            verbatimTextOutput("info"),
-                            plotOutput("bivarsnum",hover = "plot_hover"))
+                            box(title="Hover over a point in the plot to view the total number of passengers and
+                                injuries in a given accident",
+                                verbatimTextOutput("info"),
+                                plotOutput("bivarsnum",hover = "hover"))
                         )
                 ),
                 # Clustering content
@@ -111,13 +119,17 @@ shinyUI(
                         numericInput('iteration', 'Select number of algorithm iterations',
                                      value = 3, min = 3, max = 10)),
                         column(8,
-                        plotOutput("plotclus")),
+                        plotOutput("plotclus")),  
+                ),
+                # Dendrogram content
+                tabItem(tabName = "tabdendro",
                         titlePanel("Dendrogram for Total Passengers and Total Injuries"),
                         plotOutput("dendro")
                 ),
-                # Models:  Regression Content
-                tabItem(tabName = "tabreg",
-                        titlePanel("Build Your Own Logistic? Regression Model"),
+                # Models:  Regression Model Fit Content
+                tabItem(tabName = "tabfitmodel",
+                        titlePanel("Build Your Own Logistic Regression Model to Predict Whether a Fatality Occurred
+                                   Due to an Aviation Accident"),
                         fluidRow(
                             column(12,(h4("The logistic regression technique used to build this model uses a form of
                             the general binomial equation: ")))
@@ -125,15 +137,38 @@ shinyUI(
                         br(),
                         fluidRow(
                             column(4,
-                            selectInput('predlog1', 'Select independent variable(s):', names(train)),
-                            # varSelectInput('predlog2', 'Select second predictor:', predSubset,multiple=TRUE),
-                                        # selected=names(predSubset)[[2]]),
-                            # varSelectInput('predlog3', 'Select third predictor:', predSubset, multiple=TRUE),
-                                        # selected=names(predSubset)[[3]]),
-                            actionButton("go","Build model"),
+                            selectInput('indvar', 'Select independent variable(s):', names(predSubset), multiple=TRUE),
+                            actionButton("go","Fit model"), br(),br(),br(),
+                            selectInput('selectout', 'Select desired model output:', 
+                                        choices=c("Model fit summary",
+                                                  "ANOVA summary",
+                                                  "Prediction misclassification rate"))
                             ),
                             column(8,
-                                   verbatimTextOutput("regmodel"))
+                                   tags$b("Selected model output:"),
+                                   verbatimTextOutput("regoutput"))
+                        )
+                ),
+                # Models:  Regression Model Prediction Content
+                tabItem(tabName = "tabpredict",
+                        titlePanel("Make Customized Predictions Based on the Logistic 
+                                   Regression Model You Just Created"),
+                        br(),
+                        fluidRow(
+                            column(4,
+                            selectInput('predictdmg', 'Select Aircraft Damage:', data, multiple = TRUE),
+                            selectInput('predictcateg', 'Select Aircraft Category', data, multiple = TRUE),
+                            selectInput('predictpurp', 'Select Purpose of Flight', data, multiple = TRUE),
+                            selectInput('predictphase', 'Select Broad Phase of Flight', data, multiple = TRUE),
+                            selectInput('predictweath', 'Select Weather Condition', data, multiple = TRUE),
+                            selectInput('predicteng', 'Select Engine Count', data, multiple = TRUE),
+                            selectInput('predictblt', 'Select Amateur Built Indicator', data, multiple = TRUE),
+                            numericInput('predictinj', 'Select number of Total Injuries', 
+                                         value=0, min=0, max=50),
+                            numericInput('predictpass', 'Select number of Total Passengers', 
+                                         value=5, min=1, max=50))
+                        # selectInput('predictinj', 'Select parameters for prediction', data, multiple = TRUE),
+                            # selectInput('predictpass', 'Select parameters for prediction', data, multiple = TRUE))
                         )
                 ),
                 # Models:  Classification Tree Content
