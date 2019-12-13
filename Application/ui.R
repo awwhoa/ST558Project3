@@ -18,8 +18,8 @@ shinyUI(
                          menuItem("Dendrogram", tabName="tabdendro")),
                 menuItem("Supervised Learning Models", tabName = "tabsuper",
                          menuItem("Logistic Regression", tabName="tabreg"),
-                                  # menuSubItem("Make predictions", tabName="tabpredict")),
-                         menuItem("Classification Tree", tabName="tabtree")),
+                                  menuSubItem("Regression Formula", tabName="math"),
+                         menuItem("Random Forest", tabName="tabtree")),
                 menuItem("Give Me All the Data", tabName = "taball")
             )
         ),
@@ -60,13 +60,14 @@ shinyUI(
                                    <li>Perform supervised learning activities</li>
                                    <li>Fit two different supervised learning models and make predictions</li>
                                    <li>View, subset, and download the analysis data</li>
-                                   </ul>")))
+                                   </ul>"))
+                            )
                         ),
                 # EDA:  Numeric Variables
                 tabItem(tabName = "tabcatvars",
                         fluidRow(
                             column(6,varSelectInput("var1", "Select a variable to explore:", catSubset)),
-                            column(6,tableOutput("table1")),
+                            column(6,tableOutput("table1"))
                         ),
                         fluidRow(
                             box(title="One-Way Distribution",
@@ -76,8 +77,8 @@ shinyUI(
                             box(title="Selected Predictor vs. Fatal Response",
                                 plotOutput("plot2"),
                                 br(),
-                            downloadButton('downloadPlot2','Download this plot')),
-                        ),
+                            downloadButton('downloadPlot2','Download this plot'))
+                        )
                 ),
                 # EDA: Categorical Variables
                 tabItem(tabName = "tabnumvars",
@@ -93,16 +94,14 @@ shinyUI(
                             column(12,varSelectInput("numvar", "Select a variable to explore:", numPredSubset)),
                             box(title="Numeric Summary",
                                 tableOutput("sum"))
-                            ),
+                        ),
                         fluidRow(
                             box(title="Distribution of the Variable",
                                 plotOutput("pass")),
                             box(title="Proportion of Fatal Incidents ",
                                 plotOutput("propfatal"))
-                            ),
+                        ),
                         titlePanel(h3("Scatterplot of Total Passengers and Total Injuries by Fatal")),
-                        # titlePanel(h4("Hover over a point in the plot to view the total number of
-                        #               passengers and number of injured passengers in a given accident")),
                         fluidRow(
                             box(title="Hover over a point in the plot to view the total number of passengers and
                                 injuries in a given accident",
@@ -119,7 +118,7 @@ shinyUI(
                         numericInput('iteration', 'Select number of algorithm iterations',
                                      value = 3, min = 3, max = 10)),
                         column(8,
-                        plotOutput("plotclus")),  
+                        plotOutput("plotclus")) 
                 ),
                 # Dendrogram content
                 tabItem(tabName = "tabdendro",
@@ -142,7 +141,7 @@ shinyUI(
                             actionButton("go","Fit model"), br(),br(),br(),
                             selectInput('selectout', 'Select desired model output:', 
                                         choices=c("Model fit summary",
-                                                  "ANOVA summary")),
+                                                  "ANOVA summary"))
                             # checkboxInput('misclass', 'View misclassification rate for this model')
                             ),
                             # textOutput("misclassrate"),
@@ -155,6 +154,7 @@ shinyUI(
                                    verbatimTextOutput("regoutput"))
                         ),
                 # ),
+                
                 # # Regression Model prediction content
                 # tabItem(tabName = "tabpredict",
                         fluidRow(
@@ -189,17 +189,30 @@ shinyUI(
                                              ),
                                              actionButton("run","Run Predictions"), br(),
                                              verbatimTextOutput("regpredout")))
-                            )
-                            # box(actionButton("run","Run predictions"), br(),
-                            #     textOutput("regpredout"))
-                        # )
+                            ),
+                ),
+                tabItem(tabName="math",
+                        h3("A general form of an equation commonly used binary logistic regression analysis:"),
+                        fluidRow(
+                            box(withMathJax(),
+                                uiOutput('math'))
+                        )
                 ),
                 # Models:  Classification Tree Content
                 tabItem(tabName = "tabtree",
-                        h3("Build Your Own Classification Tree Model"),
+                        h3("Build a Random Forest Model"),
                         fluidRow(
                             column(4,
-                                   numericInput('ntrees', 'Enter number of trees:', value=100))
+                                   numericInput('ntrees', 'Enter number of trees:', 
+                                                value=20, min=5, max=500),
+                                   selectInput('trainctrl', 'Select a train control method',
+                                               choices=c('Out of bag', 'Cross-validation','Repeated cross-validation'))
+                                   ),
+                            column(8,
+                                   textOutput("rfstats"),
+                                   br(),
+                                   plotOutput("rfplot")
+                                   )
                         )
                 ),
                 # Fifth tab content
@@ -214,3 +227,4 @@ shinyUI(
         )
     )
 )
+

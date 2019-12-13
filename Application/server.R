@@ -12,6 +12,8 @@ library(RCurl)
 library(plotly)
 library(LiblineaR)
 library(randomForest)
+library(tree)
+library(caret)
 
 
 shinyServer(function(input, output, session) {
@@ -269,6 +271,7 @@ shinyServer(function(input, output, session) {
            observe({updateSelectInput(session,"regoutput")})
            logFitANOVA()
        } else {
+           observe({updateSelectInput(session,"regoutput")})
            logFitGLM()
        }
     })
@@ -299,20 +302,48 @@ shinyServer(function(input, output, session) {
 
     # output the prediction box conditionally
     output$regpredout <- renderPrint({
-        if(input$run) {
+        if(input$run == 1) {
             logPredictions()
-        } else if(input$run){
+        } else if(input$go == 0){
             "Fit a model in order to run prediction "
         }
     })
 
-    # initialInputs <- isolate(reactiveValuesToList(input))
+    # create random forest model 
+    # rfit < reactive({
+    #     # rf <- randomForest::randomForest(as.formula(paste("Fatal ~ ",
+    #     #                                     data=train,
+    #     #                                     mtry=ncol(train)-1,
+    #     #                                     ntree=input$ntrees,
+    #     #                                     importance=TRUE)))
     # 
-    # observe({
-    #     # OPTIONAL - save initial values of dynamic inputs
-    #     inputValues <- reactiveValuesToList(input)
-    #     initialInputs <<- utils::modifyList(inputValues, initialInputs)
+    #     rf <- randomForest(Total.Injuries ~ .,
+    #                          data = train,
+    #                          mtry = ncol(train) - 1,
+    #                          importance=TRUE,
+    #                          paste0(ntree = input$ntrees))
+    #     rf
     # })
+    # 
+    # output$rfstats <- renderText({
+    #     rfit()
+    # })
+    
+    # output$rfplot <- renderPlot({
+    #     plot(rfit())
+    # })
+    
+    # observe({
+    #     updateNumericInput(session, "ntrees")
+    # })
+
+    
+    # mathjax stuff
+    output$math <- renderUI({
+        withMathJax('$$\\mu=\\frac{\\exp(\\mathbf{X}\\boldsymbol{\\beta})}{1 + \\exp(\\mathbf{X}\\boldsymbol{\\beta})} = \\frac 1 {1 + \\exp(-\\mathbf{X} \\boldsymbol{\\beta})}$$')
+    })
+    
+    
     
 })
 
