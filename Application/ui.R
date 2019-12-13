@@ -10,16 +10,17 @@ shinyUI(
             sidebarMenu(
                 menuItem("About", tabName = "tabstart"),
                 menuItem("EDA", tabName = "tabeda",
-                         menuItem("Numeric Variables", tabName="tabnumvars"), # numeric one-ways
-                         # categorical one-ways #include another 2nd level tab for bivariates acorss the dataset if time
-                         menuItem("Categorical Variables", tabName="tabcatvars")), 
+                         menuItem("Response Variable", tabName="tabresp"),
+                         menuItem("Numeric Predictors", tabName="tabnumvars"), 
+                         # #include another 2nd level tab for bivariates acorss the dataset if time
+                         menuItem("Categorical Predictors", tabName="tabcatvars")), 
                 menuItem("Unsupervised Learning", tabName="tabunsup", 
                          menuItem("Clustering", tabName="tabcluster"),
                          menuItem("Dendrogram", tabName="tabdendro")),
-                menuItem("Supervised Learning Models", tabName = "tabsuper",
-                         menuItem("Logistic Regression", tabName="tabreg"),
+                menuItem("Supervised Learning", tabName = "tabsuper",
+                         menuItem("Logistic Regression Model", tabName="tabreg"),
                                   menuSubItem("Equation", tabName="math"),
-                         menuItem("Classification Tree", tabName="tabtree")),
+                         menuItem("Classification Tree Model", tabName="tabtree")),
                 menuItem("Give Me All the Data", tabName = "taball")
             )
         ),
@@ -32,12 +33,13 @@ shinyUI(
                                    "This dataset is a subset of the National Transportation Safety Board's Aviation
                                    Accident Database. The original database contains information about civil aviation
                                    accidents and incidents that occurred within the United States from 1962 to present
-                                   day. Due to large number of records and variables in the original dataset, a subset
+                                   day. Due to the large number of records and variables in the original dataset, a subset
                                    of approximately 3,000 records and 10 variables are included with this application.
+                                   
                                    This subset has been cleaned and pre-processed to facilitate data exploration and
-                                   modeling. It focuses primarily on accidents or incidents by airplanes or helicopters.
-                                   The target variable is Fatal, which indicates if at least one person perished due to
-                                   an aviation accident or incident.",
+                                   modeling. It focuses primarily on accidents or incidents by airplanes or helicopters
+                                   belonging to the United States. The target variable is Fatal, which indicates if at
+                                   least one person perished due to an aviation accident or incident.",
                                    br(),br(),
                                    "Below are descriptions of the variables included in this application:",
                                    br(),br()),
@@ -50,18 +52,30 @@ shinyUI(
                                    h2("What you can do with this application"),
                                    uiOutput("myList"),
                                    HTML("<ul>
-                                   <li>Perform exploratory data analysis on the dataset variables</li>
-                                   <ul>
-                                   <li>8 categorical variables</il>
-                                   <li>2 numeric variables</il>
-                                   </ul>
-                                   <li>Perform supervised learning activities</li>
+                                   <li>Perform univarite and bivariate exploratory analysis on the dataset variables</li>
+                                   <li>Engage in an interactive supervised learning activity</li>
                                    <li>Fit two different supervised learning models and make predictions</li>
-                                   <li>View, subset, and download the analysis data</li>
+                                   <li>View and download the analysis dataset</li>
                                    </ul>"))
                             )
                         ),
-                # EDA:  Numeric Variables
+                # EDA:  Response Variable
+                tabItem(tabName="tabresp",
+                        titlePanel(h3("The Response Variable")),
+                        fluidRow(
+                            column(12,
+                            titlePanel(h4("The response variable in this dataset is Fatal, which indicates 
+                                          whether at least one passenger on the aircraft died as a result
+                                          of the given incident or accident. It is a binary variable, which 
+                                          equals 1 if the accident resulted in at least one death and 0 if the
+                                          accident did not result in any death.")),
+                            box(title="Distribution of Fatal",
+                                tableOutput("fatal"),
+                                plotOutput("plot13")),
+                            )
+                        )
+                ),
+                # EDA:  Numeric Predictors
                 tabItem(tabName = "tabcatvars",
                         fluidRow(
                             column(6,varSelectInput("var1", "Select a variable to explore:", catSubset)),
@@ -78,15 +92,8 @@ shinyUI(
                             downloadButton('downloadPlot2','Download plot'))
                         )
                 ),
-                # EDA: Categorical Variables
+                # EDA: Categorical Predictors
                 tabItem(tabName = "tabnumvars",
-                        titlePanel(h3("The Response Variable")),
-                        fluidRow(
-                          box(title="Distribution of Fatal",
-                              tableOutput("fatal")),
-                          box(title="Numeric Summary of Fatal",
-                              tableOutput("sumfatal"))
-                        ),
                         titlePanel(h3("The Numeric Predictors")),
                         fluidRow(
                             column(12,varSelectInput("numvar", "Select a variable to explore:", numPredSubset)),
@@ -112,9 +119,9 @@ shinyUI(
                         titlePanel("Interactive Clustering Plot for Total Passengers and Total Injuries"),
                         column(12,
                         numericInput('clusters', 'Select number of clusters',
-                                     value = 3, min = 1, max = 10),
+                                     value=3, min = 1, max = 10),
                         numericInput('iteration', 'Select number of algorithm iterations',
-                                     value = 3, min = 4, max = 10)),
+                                     value=4, min = 4, max = 12)),
                         column(8,
                         plotOutput("plotclus")) 
                 ),

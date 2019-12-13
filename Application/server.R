@@ -17,7 +17,13 @@ library(tree)
 
 shinyServer(function(input, output, session) {
 
-    ### Tab 2: EDA ###
+    ##### Tab 2: EDA #####
+    ### Response Variable
+    # Distribution table for Fatal
+    output$fatal <- renderTable({
+        table(data$Fatal, dnn="Fatal")
+    })
+    
     # create and render the drop down box for the one-way EDA variable selection
     selectCatData <- reactive({
         newData <- data %>% select(!!input$var1)
@@ -31,15 +37,18 @@ shinyServer(function(input, output, session) {
     
     # create the one-way barplot w/ a coordindate flip    
     plotBar <- reactive({
-        ggplot(data, aes(x=!!input$var1)) + geom_bar(colour="orange") + coord_flip()
+        ggplot(data, aes(x=!!input$var1)) + geom_bar(colour="orange") + 
+            geom_text(stat='count', aes(label=..count..), colour="black", size=5) +
+            labs(y="Count of All Incidents") + 
+            coord_flip()
     })
     
     # create the bivariate plot with the target variable based on user selection
     plotBivarTarget <- reactive({
-        ggplot(data, aes(x=!!input$var1, y=Fatal)) + 
-            geom_bar(stat="identity", colour="orange") + 
-            coord_flip() +
-            labs(y="Count of Fatal Incidents")
+        ggplot(data, aes(x=!!input$var1, y=Fatal)) +
+            geom_bar(stat="identity", colour="orange") +
+            labs(y="Count of Fatal Incidents") +
+            coord_flip()
     })
     
     # create the categorical one-way plots (based on user variable selection)
@@ -47,11 +56,33 @@ shinyServer(function(input, output, session) {
             plotBar()
     })
     
+    # create the one-way plot for response variable fatal
+    plotBarFatal <- reactive({
+        ggplot(data, aes(x=Fatal)) + geom_bar(colour="orange") + 
+            geom_text(stat='count', aes(label=..count..), size=6) 
+    })
+    
+    # create the categorical one-way plots (based on user variable selection)
+    output$plot13 <- renderPlot({
+        plotBarFatal()
+    })
+    
     # select the appropriate bivariate plot based on user selection
     output$plot2 <- renderPlot({
         plotBivarTarget()
     })
 
+    # plotBivars <- reactive({
+    #     ggplot(data, aes(x=!!input$var1)) + 
+    #         geom_bar(aes(fill = !!input$var2), position = "dodge") #+ 
+    #     # labs(x=, fill="Category")
+    #     
+    # })
+    # 
+    # output$plot45 <- renderPlot({
+    #     plotBivars()
+    # })
+    
     # create download for categorical plot1
     output$downloadPlot1 <- downloadHandler(
         filename = function() { paste('PlotFreq', input$var1, '.png', sep='') },
@@ -74,10 +105,6 @@ shinyServer(function(input, output, session) {
     
     ##### NUMERIC VARIABLE EXPLORATION
     ### Numeric Response Variable
-    # distribution table for Fatal
-    output$fatal <- renderTable({
-        table(data$Fatal, dnn="Fatal")
-    })
     # numeric summary for Fatal MAY LEAVE THIS OUT SINCE IT'S A TRULY BINARY VARIABLE
     calcSummmaryStats <- function(x){
         subset <- data %>%
