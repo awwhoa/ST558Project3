@@ -12,7 +12,7 @@ numPredSubset <- as.data.frame(unclass(dplyr::select(data, c("Total.Passengers",
 catSubset <- as.data.frame(unclass(dplyr::select(data, -c("Total.Passengers","Total.Injuries","Fatal"))))
 
 # Create subset of predictor variables from analysis dataset
-predSubset <- as.data.frame(unclass(dplyr::select(data, -c("Fatal"))))
+predSubset <- names(as.data.frame(unclass(dplyr::select(data, -c("Fatal")))))
 
 # Create testing and training data
 sampleSize <- floor(0.8 * nrow(data))
@@ -21,5 +21,18 @@ trainInd <- sample(seq_len(nrow(data)), size = sampleSize)
 train <- data[trainInd, ]
 test <- data[-trainInd, ]
 
-# Create data frames of choices for the logistic regression model predictions
+# Create data frames of attribute choices for the logistic regression model predictions
+dmg <- as.data.frame(unclass(dplyr::select(data, Aircraft.Damage)))
+cat <- as.data.frame(unclass(dplyr::select(data, Aircraft.Category))) 
+blt<- as.data.frame(unclass(dplyr::select(data, Amateur.Built)))
+purp<- as.data.frame(unclass(dplyr::select(data, Purpose.of.Flight)))
+wthr<- as.data.frame(unclass(dplyr::select(data, Weather.Condition)))
+phase<- as.data.frame(unclass(dplyr::select(data, Broad.Phase.of.Flight)))
+eng<- as.data.frame(unclass(dplyr::select(data, Engine.Count)))
+
+
+
+
+
+
 

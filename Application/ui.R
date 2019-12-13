@@ -11,14 +11,14 @@ shinyUI(
                 menuItem("About", tabName = "tabstart"),
                 menuItem("EDA", tabName = "tabeda",
                          menuItem("Numeric Variables", tabName="tabnumvars"), # numeric one-ways
-                         menuItem("Categorical Variables", tabName="tabcatvars")),  # categorical one-ways #include another 2nd level tab for bivariates acorss the dataset if time
-                menuItem("Unsupervised Learning", tabName="unsup", 
+                         # categorical one-ways #include another 2nd level tab for bivariates acorss the dataset if time
+                         menuItem("Categorical Variables", tabName="tabcatvars")), 
+                menuItem("Unsupervised Learning", tabName="tabunsup", 
                          menuItem("Clustering", tabName="tabcluster"),
                          menuItem("Dendrogram", tabName="tabdendro")),
-                menuItem("Supervised Learning Models", tabName = "tabmodel",
-                         menuItem("Logistic Regression", tabName="tabreg",
-                                  menuSubItem("Fit the model", tabName="tabfitmodel"),
-                                  menuSubItem("Make predictions", tabName="tabpredict")),
+                menuItem("Supervised Learning Models", tabName = "tabsuper",
+                         menuItem("Logistic Regression", tabName="tabreg"),
+                                  # menuSubItem("Make predictions", tabName="tabpredict")),
                          menuItem("Classification Tree", tabName="tabtree")),
                 menuItem("Give Me All the Data", tabName = "taball")
             )
@@ -113,7 +113,7 @@ shinyUI(
                 # Clustering content
                 tabItem(tabName = "tabcluster",
                         titlePanel("Interactive Clustering Plot for Total Passengers and Total Injuries"),
-                        column(4,
+                        column(12,
                         numericInput('clusters', 'Select number of clusters',
                                      value = 3, min = 1, max = 10),
                         numericInput('iteration', 'Select number of algorithm iterations',
@@ -126,8 +126,8 @@ shinyUI(
                         titlePanel("Dendrogram for Total Passengers and Total Injuries"),
                         plotOutput("dendro")
                 ),
-                # Logistic Regression model fit content
-                tabItem(tabName = "tabfitmodel",
+                # Logistic Regression model fit and prediction content
+                tabItem(tabName = "tabreg",
                         titlePanel("Build Your Own Logistic Regression Model to Predict Whether a Fatality Occurred
                                    Due to an Aviation Accident"),
                         fluidRow(
@@ -138,7 +138,7 @@ shinyUI(
                         fluidRow(
                             column(4,
                             selectInput('indvar', 'Select independent variable(s):', 
-                                        names(predSubset), multiple=TRUE),
+                                        predSubset, multiple=TRUE),
                             actionButton("go","Fit model"), br(),br(),br(),
                             selectInput('selectout', 'Select desired model output:', 
                                         choices=c("Model fit summary",
@@ -153,31 +153,50 @@ shinyUI(
                             column(8,
                                    h4(tags$b("Selected model output:")),
                                    verbatimTextOutput("regoutput"))
-                        )
-                ),
-                # Regression Model prediction content
-                tabItem(tabName = "tabpredict",
-                        titlePanel("Make Customized Predictions Based on the Logistic 
-                                   Regression Model You Just Created"),
-                        br(),
+                        ),
+                # ),
+                # # Regression Model prediction content
+                # tabItem(tabName = "tabpredict",
                         fluidRow(
-                            column(4,
-                            selectInput('predictdmg', 'Select Aircraft Damage:', data$Aircraft.Damage),
-                            selectInput('predictcateg', 'Select Aircraft Category', data$Aircraft.Category),
-                            selectInput('predictpurp', 'Select Purpose of Flight', data$Purpose.of.Flight),
-                            selectInput('predictphase', 'Select Broad Phase of Flight', data$Broad.Phase.of.Flight),
-                            selectInput('predictweath', 'Select Weather Condition', data$Weather.Condition),
-                            selectInput('predicteng', 'Select Engine Count', data$Engine.Count),
-                            selectInput('predictblt', 'Select Amateur Built Indicator', data$Amateur.Built),
-                            numericInput('predictinj', 'Select number of Total Injuries', 
-                                         value=0, min=0, max=50),
-                            numericInput('predictpass', 'Select number of Total Passengers', 
-                                         value=5, min=1, max=50))
-                        )
+                            column(12,
+                            # Only show this panel if the "go" run model box is checked
+                            conditionalPanel(condition = "input.go == 1",
+                                             h3("Make Customized Predictions Based on the Logistic 
+                                   Regression Model You Just Created"),
+                                             br(),
+                                             fluidRow(
+                                                 column(4,
+                                                        selectInput('predictdmg', 'Select Aircraft Damage:', dmg, 
+                                                                    selected=dmg[1]),
+                                                        selectInput('predictcateg', 'Select Aircraft Category', cat, 
+                                                                    selected=cat[1]),
+                                                        selectInput('predictpurp', 'Select Purpose of Flight', purp, 
+                                                                    selected=purp[1])),
+                                                 column(4,
+                                                        selectInput('predictphase', 'Select Broad Phase of Flight', phase, 
+                                                                    selected=phase[1]),
+                                                        selectInput('predictweath', 'Select Weather Condition', wthr, 
+                                                                    selected=wthr[1]),
+                                                        selectInput('predicteng', 'Select Engine Count', eng, 
+                                                                    selected=eng[1])),
+                                                 column(4,
+                                                        selectInput('predictblt', 'Select Amateur Built Indicator', blt, 
+                                                                    selected=blt[1]),
+                                                        numericInput('predictinj', 'Select number of Total Injuries', 
+                                                                     value=0, min=0, max=50),
+                                                        numericInput('predictpass', 'Select number of Total Passengers', 
+                                                                     value=5, min=1, max=50))
+                                             ),
+                                             actionButton("run","Run Predictions"), br(),
+                                             verbatimTextOutput("regpredout")))
+                            )
+                            # box(actionButton("run","Run predictions"), br(),
+                            #     textOutput("regpredout"))
+                        # )
                 ),
                 # Models:  Classification Tree Content
                 tabItem(tabName = "tabtree",
-                        titlePanel("Build Your Own Classification Tree Model"),
+                        h3("Build Your Own Classification Tree Model"),
                         fluidRow(
                             column(4,
                                    numericInput('ntrees', 'Enter number of trees:', value=100))

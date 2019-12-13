@@ -261,7 +261,7 @@ shinyServer(function(input, output, session) {
         }
     })
         
-    # generate initial model output
+    # generate model output w/ option for user selection
     output$regoutput <- renderPrint({
         logFitGLM()
        if(input$selectout == "ANOVA summary") {
@@ -272,7 +272,48 @@ shinyServer(function(input, output, session) {
            logFitGLM()
        }
     })
-})
 
+    # run the user's selected attributes in the model they created
+    logPredictions <- eventReactive(input$run, {
+        fit <- glm(as.formula(paste("Fatal ~ ",
+                                    paste0(input$indvar, collapse="+"))),
+                   data=train,
+                   family=binomial)
+
+        p <- predict(fit, 
+                newdata = data.frame(Aircraft.Damage = input$predictdmg, 
+                                     Aircraft.Category = input$predictcateg, 
+                                     Purpose.of.Flight = input$predictpurp,
+                                     Broad.Phase.of.Flight = input$predictphase,
+                                     Weather.Condition = input$predictweath,
+                                     Engine.Count = input$predicteng,
+                                     Amateur.Built = input$predictblt,
+                                     Total.Injuries = input$predictinj,
+                                     Total.Passengers = input$predictpass
+                ),
+                type = "response", se.fit = TRUE)
+        p[[1]]
+        paste("For the model generated, on average, the estimated probability of a flight being fatal for the predictors entered is ",
+              p[[1]])
+    })
+
+    # output the prediction box conditionally
+    output$regpredout <- renderPrint({
+        if(input$run) {
+            logPredictions()
+        } else if(input$run){
+            "Fit a model in order to run prediction "
+        }
+    })
+
+    # initialInputs <- isolate(reactiveValuesToList(input))
+    # 
+    # observe({
+    #     # OPTIONAL - save initial values of dynamic inputs
+    #     inputValues <- reactiveValuesToList(input)
+    #     initialInputs <<- utils::modifyList(inputValues, initialInputs)
+    # })
+    
+})
 
 
