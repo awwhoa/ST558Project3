@@ -156,10 +156,10 @@ shinyServer(function(input, output, session) {
     # make the numeric predictor bivariate plot clickable
     output$info <- renderText({
         xy_str <- function(e) {
-            if(is.null(e)) return("")
+            if(is.null(e)) return(NULL)
             paste0(round(e$x, 0), " total passengers and ", round(e$y, 0), " total injuries")
         }
-        xy_str(input$hover)
+        xy_str(input$plot_hover)
     })
     
     ### Tab 3:  Clustering ###

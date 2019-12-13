@@ -18,7 +18,7 @@ shinyUI(
                          menuItem("Dendrogram", tabName="tabdendro")),
                 menuItem("Supervised Learning Models", tabName = "tabsuper",
                          menuItem("Logistic Regression", tabName="tabreg"),
-                                  menuSubItem("Regression Formula", tabName="math"),
+                                  menuSubItem("Equation", tabName="math"),
                          menuItem("Classification Tree", tabName="tabtree")),
                 menuItem("Give Me All the Data", tabName = "taball")
             )
@@ -106,7 +106,7 @@ shinyUI(
                             box(title="Hover over a point in the plot to view the total number of passengers and
                                 injuries in a given accident",
                                 verbatimTextOutput("info"),
-                                plotOutput("bivarsnum",hover = "hover"))
+                                plotOutput("bivarsnum",hover = "plot_hover"))
                         )
                 ),
                 # Clustering content
@@ -196,7 +196,8 @@ shinyUI(
                             ),
                 ),
                 tabItem(tabName="math",
-                        h3("A general form of an equation commonly used binary logistic regression analysis:"),
+                        h4("The mean function commonly used for binomial distributions like the response 
+                           variable in the dataset used in this applicaiton."),
                         fluidRow(
                             box(withMathJax(),
                                 uiOutput('math'))
