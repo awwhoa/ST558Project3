@@ -13,7 +13,6 @@ library(plotly)
 library(LiblineaR)
 library(randomForest)
 library(tree)
-library(caret)
 
 
 shinyServer(function(input, output, session) {
@@ -255,13 +254,13 @@ shinyServer(function(input, output, session) {
         paste("does this work?", logFitMisclass())
     })
     
-    output$misclassrate <- renderPrint({
-        if(input$misclass == 1) {
-            paste("This model correctly classified accidents as Fatal ",
-                  wtf(),
-                  "% of the time.")
-        }
-    })
+    # output$misclassrate <- renderPrint({
+    #     if(input$misclass == 1) {
+    #         paste("This model correctly classified accidents as Fatal ",
+    #               wtf(),
+    #               "% of the time.")
+    #     }
+    # })
         
     # generate model output w/ option for user selection
     output$regoutput <- renderPrint({
@@ -296,7 +295,7 @@ shinyServer(function(input, output, session) {
                 ),
                 type = "response", se.fit = TRUE)
         p[[1]]
-        paste("For the model generated, on average, the estimated probability of a flight being fatal for the predictors entered is ",
+        paste("On average, the estimated probability of a flight having at least one fatality for the predictor attributes entered is ",
               p[[1]])
     })
 
@@ -309,34 +308,100 @@ shinyServer(function(input, output, session) {
         }
     })
 
-    # create random forest model 
-    # rfit < reactive({
-    #     # rf <- randomForest::randomForest(as.formula(paste("Fatal ~ ",
-    #     #                                     data=train,
-    #     #                                     mtry=ncol(train)-1,
-    #     #                                     ntree=input$ntrees,
-    #     #                                     importance=TRUE)))
-    # 
-    #     rf <- randomForest(Total.Injuries ~ .,
-    #                          data = train,
-    #                          mtry = ncol(train) - 1,
-    #                          importance=TRUE,
-    #                          paste0(ntree = input$ntrees))
-    #     rf
-    # })
-    # 
-    # output$rfstats <- renderText({
-    #     rfit()
-    # })
-    
-    # output$rfplot <- renderPlot({
-    #     plot(rfit())
-    # })
-    
-    # observe({
-    #     updateNumericInput(session, "ntrees")
-    # })
+    ##### Create classification tree
+    treeplot <- reactive({
+        t <- tree::tree(as.formula("Fatal ~ ."),
+                        data=train,
+                        split=input$split)
+        
+        plot(t)
+        text(t)
+        })
 
+    treefit <- reactive({
+        t <- tree::tree(as.formula("Fatal ~ ."),
+                        data=train,
+                        split=input$split)
+        t        
+    })
+    
+    treermse <- reactive({
+        t <- tree::tree(as.formula("Fatal ~ ."),
+                        data=train,
+                        split=input$split)
+        t        
+        pred <- predict(t, newdata = dplyr::select(test, -Fatal))
+        rmse <- sqrt(mean((pred-test$Fatal)^2))
+        rmse
+    })
+    
+    output$rmse <- renderPrint({
+        treermse()
+    })
+    
+    output$treestats <- renderPrint({
+        treefit()
+    })
+    
+    output$treeplot <- renderPlot({
+        treeplot()
+    })
+    
+    # run the user's selected attributes for this tree model
+    treePredictions <- eventReactive(input$runtreepred, {
+        t <- tree::tree(as.formula("Fatal ~ ."),
+                        data=train,
+                        split=input$split)
+        # prediction for entered attributes
+        p <- predict(t, 
+                     newdata = data.frame(Aircraft.Damage = input$predictdmg2, 
+                                          Aircraft.Category = input$predictcateg2,
+                                          Purpose.of.Flight = input$predictpurp2,
+                                          Broad.Phase.of.Flight = input$predictphase2,
+                                          Weather.Condition = input$predictweath2,
+                                          Engine.Count = input$predicteng2,
+                                          Amateur.Built = input$predictblt2,
+                                          Total.Injuries = input$predictinj2,
+                                          Total.Passengers = input$predictpass2
+                                          )
+                     )
+        # p[[1]]
+        paste("On average, the estimated probability of a flight having at least one fatality for the predictor attributes entered is ", p,".")
+    })
+    
+    output$treepred <- renderPrint({
+        treePredictions()
+    })
+    
+    observe({
+        updateSelectInput(session, "predictdmg2")
+    })
+    observe({
+        updateSelectInput(session, "predcateg2")
+    })
+    observe({
+        updateSelectInput(session, "predpurp2")
+    })
+    observe({
+        updateSelectInput(session, "predphase2")
+    })
+    observe({
+        updateSelectInput(session, "predeng2")
+    })
+    observe({
+        updateSelectInput(session, "predweath2")
+    })
+    observe({
+        updateSelectInput(session, "predblt2")
+    })
+    observe({
+        updateNumericInput(session, "predpass2")
+    })
+    observe({
+        updateNumericInput(session, "predinj2")
+    })
+
+    
     
     # mathjax stuff
     output$math <- renderUI({
@@ -346,5 +411,4 @@ shinyServer(function(input, output, session) {
     
     
 })
-
 

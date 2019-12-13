@@ -19,7 +19,7 @@ shinyUI(
                 menuItem("Supervised Learning Models", tabName = "tabsuper",
                          menuItem("Logistic Regression", tabName="tabreg"),
                                   menuSubItem("Regression Formula", tabName="math"),
-                         menuItem("Random Forest", tabName="tabtree")),
+                         menuItem("Classification Tree", tabName="tabtree")),
                 menuItem("Give Me All the Data", tabName = "taball")
             )
         ),
@@ -73,11 +73,11 @@ shinyUI(
                             box(title="One-Way Distribution",
                                 plotOutput("plot1"),
                                 br(),
-                            downloadButton('downloadPlot1','Download this plot')),
+                            downloadButton('downloadPlot1','Download plot')),
                             box(title="Selected Predictor vs. Fatal Response",
                                 plotOutput("plot2"),
                                 br(),
-                            downloadButton('downloadPlot2','Download this plot'))
+                            downloadButton('downloadPlot2','Download plot'))
                         )
                 ),
                 # EDA: Categorical Variables
@@ -116,7 +116,7 @@ shinyUI(
                         numericInput('clusters', 'Select number of clusters',
                                      value = 3, min = 1, max = 10),
                         numericInput('iteration', 'Select number of algorithm iterations',
-                                     value = 3, min = 3, max = 10)),
+                                     value = 3, min = 4, max = 10)),
                         column(8,
                         plotOutput("plotclus")) 
                 ),
@@ -130,8 +130,12 @@ shinyUI(
                         titlePanel("Build Your Own Logistic Regression Model to Predict Whether a Fatality Occurred
                                    Due to an Aviation Accident"),
                         fluidRow(
-                            column(12,(h4("The logistic regression technique used to build this model uses a form of
-                            the general binomial equation: ")))
+                            column(12,(h5('Directions:  Select one or more indpendent variables to include in your model and
+                                          click the "Fit model" button. Output will display to the right, and different output
+                                          options are available. Options for running a prediction based on your model will also 
+                                          display below after you run your model. Select your desired independent variable 
+                                          attributes and click the "Run Predictions" button. To run a new model, 
+                                          restart the entire application.')))
                         ),
                         br(),
                         fluidRow(
@@ -154,7 +158,6 @@ shinyUI(
                                    verbatimTextOutput("regoutput"))
                         ),
                 # ),
-                
                 # # Regression Model prediction content
                 # tabItem(tabName = "tabpredict",
                         fluidRow(
@@ -188,7 +191,8 @@ shinyUI(
                                                                      value=5, min=1, max=50))
                                              ),
                                              actionButton("run","Run Predictions"), br(),
-                                             verbatimTextOutput("regpredout")))
+                                             verbatimTextOutput("regpredout"))
+                            )
                             ),
                 ),
                 tabItem(tabName="math",
@@ -200,20 +204,59 @@ shinyUI(
                 ),
                 # Models:  Classification Tree Content
                 tabItem(tabName = "tabtree",
-                        h3("Build a Random Forest Model"),
+                        h3("Fit a classification tree model based on your desired split type."),
                         fluidRow(
-                            column(4,
-                                   numericInput('ntrees', 'Enter number of trees:', 
-                                                value=20, min=5, max=500),
-                                   selectInput('trainctrl', 'Select a train control method',
-                                               choices=c('Out of bag', 'Cross-validation','Repeated cross-validation'))
-                                   ),
                             column(8,
-                                   textOutput("rfstats"),
-                                   br(),
-                                   plotOutput("rfplot")
-                                   )
-                        )
+                                   selectInput("split", "Select desired split type:",
+                                               choices=c("deviance","gini"))
+                            ),
+                            column(6,
+                                   titlePanel(h4("Root Mean Squared Error of Current Tree")),
+                                   verbatimTextOutput("rmse")
+                                   ),
+                            column(12,
+                                   titlePanel(h4("Tree plot")),
+                                   plotOutput("treeplot")
+                                   ),
+                        ),
+                            fluidRow(column(12,
+                                            actionButton("predtree","Click here to predict with this model"))
+                            ),
+                            # Only show this panel if the "go" run model box is checked
+                            fluidRow(
+                                column(12,
+                            conditionalPanel(
+                                condition = "input.predtree == 1",
+                                             h4("Make Customized Predictions Based on this Classification Tree"),
+                                             br(),
+                                             fluidRow(
+                                                 column(4,
+                                                        selectInput('predictdmg2', 'Select Aircraft Damage:', dmg, 
+                                                                    selected=dmg[1]),
+                                                        selectInput('predictcateg2', 'Select Aircraft Category', cat, 
+                                                                    selected=cat[1]),
+                                                        selectInput('predictpurp2', 'Select Purpose of Flight', purp, 
+                                                                    selected=purp[1])),
+                                                 column(4,
+                                                        selectInput('predictphase2', 'Select Broad Phase of Flight', phase, 
+                                                                    selected=phase[1]),
+                                                        selectInput('predictweath2', 'Select Weather Condition', wthr, 
+                                                                    selected=wthr[1]),
+                                                        selectInput('predicteng2', 'Select Engine Count', eng, 
+                                                                    selected=eng[1])),
+                                                 column(4,
+                                                        selectInput('predictblt2', 'Select Amateur Built Indicator', blt, 
+                                                                    selected=blt[1]),
+                                                        numericInput('predictinj2', 'Select number of Total Injuries', 
+                                                                     value=0, min=0, max=50),
+                                                        numericInput('predictpass2', 'Select number of Total Passengers', 
+                                                                     value=5, min=1, max=50))
+                                             ),
+                                             actionButton("runtreepred","Run Predictions"), br(),
+                                             verbatimTextOutput("treepred")
+                                )
+                                )
+                            )
                 ),
                 # Fifth tab content
                 tabItem(tabName = "taball",
@@ -221,7 +264,7 @@ shinyUI(
                             column(12, DT::dataTableOutput("datatable"))
                         ),
                         br(),
-                        downloadButton('downloadData', 'Download entire modeling dataset to a .csv file')
+                        downloadButton('downloadData', 'Download dataset to a .csv file')
                 )
             )
         )
