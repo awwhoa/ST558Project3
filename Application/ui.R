@@ -42,12 +42,10 @@ shinyUI(
                                    "Below are descriptions of the variables included in this application:",
                                    br(),br()),
                             column(12,
-                                   "More information about the original database can be found at",
-                                   HTML("<a href=https://catalog.data.gov/dataset/aviation-data-and-documentation-from
-                                        -the-ntsb-accident-database-system>here,</a>"),
-                                   "and the full data dictionary can be found",
-                                   HTML("<a href=https://www.ntsb.gov/_layouts/ntsb.aviation/AviationDownloadDataDictio
-                                        nary.aspx>here</a>."),
+                                   "More information about the original database can be found ",
+                                   tags$a(href="https://catalog.data.gov/dataset/aviation-data-and-documentation-from-the-ntsb-accident-database-system", "here"),
+                                   ", and the full data dictionary can be found",
+                                   tags$a(href="https://www.ntsb.gov/_layouts/ntsb.aviation/AviationDownloadDataDictionary.aspx", "here"),
                                    br(),br(),
                                    h2("What you can do with this application"),
                                    uiOutput("myList"),
