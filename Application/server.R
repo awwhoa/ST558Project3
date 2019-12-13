@@ -223,7 +223,7 @@ shinyServer(function(input, output, session) {
     ##### Modeling:  Logistic Regression #####
     ##### Tab 4:  Regression Model #####
     # Build and fit the logistic regression model
-    fitGLM <- eventReactive(input$go, {
+    logFitGLM <- eventReactive(input$go, {
         fit <- glm(as.formula(paste("Fatal ~ ",
                                     paste0(input$indvar, collapse="+"))),
                    data=train,
@@ -231,30 +231,48 @@ shinyServer(function(input, output, session) {
         summary(fit)
     })
     # run anova stats
-    fitANOVA <- reactive({
+    logFitANOVA <- reactive({
         fit <- glm(as.formula(paste("Fatal ~ ",
                                     paste0(input$indvar, collapse="+"))),
                    data=train,
                    family=binomial)
         anova(fit)
     })
-    # calculate misclassification rate
+    # calculate misclassification rate of predictionso from the mode onto the holdout data set
+    logFitMisclass <- reactive({
+        fit <- glm(as.formula(paste("Fatal ~ ",
+                                    paste0(input$indvar, collapse="+"))),
+                   data=train,
+                   family=binomial)
+        predTbl <- table(fit, test[,"Fatal"])
+        classRate <- sum(diag(predTbl)/sum(predTbl))
+        as.vector(classRate)
+    })
     
+    wtf <- reactive({
+        paste("does this work?", logFitMisclass())
+    })
+    
+    output$misclassrate <- renderPrint({
+        if(input$misclass == 1) {
+            paste("This model correctly classified accidents as Fatal ",
+                  wtf(),
+                  "% of the time.")
+        }
+    })
+        
     # generate initial model output
     output$regoutput <- renderPrint({
-        fitGLM()
+        logFitGLM()
        if(input$selectout == "ANOVA summary") {
            # then switch to user-selected output
            observe({updateSelectInput(session,"regoutput")})
-           fitANOVA()
-       } else if(input$selectout == "Prediction misclassification rate") {
-           "wtf"
+           logFitANOVA()
        } else {
-           fitGLM()
+           logFitGLM()
        }
     })
 })
 
-# })
 
 

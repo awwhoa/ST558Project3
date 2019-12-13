@@ -126,7 +126,7 @@ shinyUI(
                         titlePanel("Dendrogram for Total Passengers and Total Injuries"),
                         plotOutput("dendro")
                 ),
-                # Models:  Regression Model Fit Content
+                # Logistic Regression model fit content
                 tabItem(tabName = "tabfitmodel",
                         titlePanel("Build Your Own Logistic Regression Model to Predict Whether a Fatality Occurred
                                    Due to an Aviation Accident"),
@@ -137,38 +137,42 @@ shinyUI(
                         br(),
                         fluidRow(
                             column(4,
-                            selectInput('indvar', 'Select independent variable(s):', names(predSubset), multiple=TRUE),
+                            selectInput('indvar', 'Select independent variable(s):', 
+                                        names(predSubset), multiple=TRUE),
                             actionButton("go","Fit model"), br(),br(),br(),
                             selectInput('selectout', 'Select desired model output:', 
                                         choices=c("Model fit summary",
-                                                  "ANOVA summary",
-                                                  "Prediction misclassification rate"))
+                                                  "ANOVA summary")),
+                            # checkboxInput('misclass', 'View misclassification rate for this model')
                             ),
+                            # textOutput("misclassrate"),
+                            # Only show this panel if the misclass box is checked
+                            # conditionalPanel(condition = "input.misclass == 1",
+                            #                  verbatimTextOutput("misclassrate")),
+                            # ),
                             column(8,
-                                   tags$b("Selected model output:"),
+                                   h4(tags$b("Selected model output:")),
                                    verbatimTextOutput("regoutput"))
                         )
                 ),
-                # Models:  Regression Model Prediction Content
+                # Regression Model prediction content
                 tabItem(tabName = "tabpredict",
                         titlePanel("Make Customized Predictions Based on the Logistic 
                                    Regression Model You Just Created"),
                         br(),
                         fluidRow(
                             column(4,
-                            selectInput('predictdmg', 'Select Aircraft Damage:', data, multiple = TRUE),
-                            selectInput('predictcateg', 'Select Aircraft Category', data, multiple = TRUE),
-                            selectInput('predictpurp', 'Select Purpose of Flight', data, multiple = TRUE),
-                            selectInput('predictphase', 'Select Broad Phase of Flight', data, multiple = TRUE),
-                            selectInput('predictweath', 'Select Weather Condition', data, multiple = TRUE),
-                            selectInput('predicteng', 'Select Engine Count', data, multiple = TRUE),
-                            selectInput('predictblt', 'Select Amateur Built Indicator', data, multiple = TRUE),
+                            selectInput('predictdmg', 'Select Aircraft Damage:', data$Aircraft.Damage),
+                            selectInput('predictcateg', 'Select Aircraft Category', data$Aircraft.Category),
+                            selectInput('predictpurp', 'Select Purpose of Flight', data$Purpose.of.Flight),
+                            selectInput('predictphase', 'Select Broad Phase of Flight', data$Broad.Phase.of.Flight),
+                            selectInput('predictweath', 'Select Weather Condition', data$Weather.Condition),
+                            selectInput('predicteng', 'Select Engine Count', data$Engine.Count),
+                            selectInput('predictblt', 'Select Amateur Built Indicator', data$Amateur.Built),
                             numericInput('predictinj', 'Select number of Total Injuries', 
                                          value=0, min=0, max=50),
                             numericInput('predictpass', 'Select number of Total Passengers', 
                                          value=5, min=1, max=50))
-                        # selectInput('predictinj', 'Select parameters for prediction', data, multiple = TRUE),
-                            # selectInput('predictpass', 'Select parameters for prediction', data, multiple = TRUE))
                         )
                 ),
                 # Models:  Classification Tree Content

@@ -21,4 +21,5 @@ trainInd <- sample(seq_len(nrow(data)), size = sampleSize)
 train <- data[trainInd, ]
 test <- data[-trainInd, ]
 
-# Create data frames of 
+# Create data frames of choices for the logistic regression model predictions
+
