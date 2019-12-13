@@ -30,6 +30,9 @@ wthr<- as.data.frame(unclass(dplyr::select(data, Weather.Condition)))
 phase<- as.data.frame(unclass(dplyr::select(data, Broad.Phase.of.Flight)))
 eng<- as.data.frame(unclass(dplyr::select(data, Engine.Count)))
 
+# Read in the small data dictionary
+dictionary <- as.data.frame(unclass(read.csv('https://raw.githubusercontent.com/awwhoa/ST558Project3/master/Data/DataDictionarySmall.csv', stringsAsFactors = F, header=T)))
+
 
 
 

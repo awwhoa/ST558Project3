@@ -28,37 +28,41 @@ shinyUI(
             tabItems(
                 tabItem(tabName = "tabstart",
                         fluidRow(
-                            column(12,
+                            column(6,
                                    h2("About the data"),
-                                   "This dataset is a subset of the National Transportation Safety Board's Aviation
+                                   h4("This dataset is a subset of the National Transportation Safety Board's Aviation
                                    Accident Database. The original database contains information about civil aviation
                                    accidents and incidents that occurred within the United States from 1962 to present
                                    day. Due to the large number of records and variables in the original dataset, a subset
                                    of approximately 3,000 records and 10 variables are included with this application.
-                                   
                                    This subset has been cleaned and pre-processed to facilitate data exploration and
-                                   modeling. It focuses primarily on accidents or incidents by airplanes or helicopters
+                                   modeling. It focuses primarily on events involving airplanes or helicopters
                                    belonging to the United States. The target variable is Fatal, which indicates if at
-                                   least one person perished due to an aviation accident or incident.",
-                                   br(),br(),
-                                   "Below are descriptions of the variables included in this application:",
-                                   br(),br()),
-                            column(12,
-                                   "More information about the original database can be found ",
-                                   tags$a(href="https://catalog.data.gov/dataset/aviation-data-and-documentation-from-the-ntsb-accident-database-system", "here"),
-                                   ", and the full data dictionary can be found",
-                                   tags$a(href="https://www.ntsb.gov/_layouts/ntsb.aviation/AviationDownloadDataDictionary.aspx", "here"),
-                                   br(),br(),
+                                   least one person perished from an event."),
+                                   h4("More information about the original database can be found ",
+                                   tags$a(href="https://catalog.data.gov/dataset/aviation-data-and-documentation-from-the-ntsb-accident-database-system", "here"),", and the full data dictionary can be found",tags$a(href="https://www.ntsb.gov/_layouts/ntsb.aviation/AviationDownloadDataDictionary.aspx", "here")),
+                            ),
+                            column(6,
                                    h2("What you can do with this application"),
                                    uiOutput("myList"),
-                                   HTML("<ul>
+                                   h4(HTML("<ul>
                                    <li>Perform univarite and bivariate exploratory analysis on the dataset variables</li>
+                                   <li>Interact with and download plots</li>
                                    <li>Engage in an interactive supervised learning activity</li>
                                    <li>Fit two different supervised learning models and make predictions</li>
                                    <li>View and download the analysis dataset</li>
                                    </ul>"))
-                            )
-                        ),
+                            ),
+                            column(12,
+                                   h2("Abridged Data Dictionary"),
+                                   h4("Below are descriptions of the variables included in this application. 
+                                      Some variables are original to the larger database, and some have been 
+                                      derived specifically for this application."),
+                                   br(),
+                                   tableOutput("dict")
+                                   )
+                        )
+                ),
                 # EDA:  Response Variable
                 tabItem(tabName="tabresp",
                         titlePanel(h3("The Response Variable")),
@@ -66,9 +70,9 @@ shinyUI(
                             column(12,
                             titlePanel(h4("The response variable in this dataset is Fatal, which indicates 
                                           whether at least one passenger on the aircraft died as a result
-                                          of the given incident or accident. It is a binary variable, which 
-                                          equals 1 if the accident resulted in at least one death and 0 if the
-                                          accident did not result in any death.")),
+                                          of the given event. It is a binary variable, which 
+                                          equals 1 if the event resulted in at least one death and 0 if the
+                                          event did not result in any death.")),
                             box(title="Distribution of Fatal",
                                 tableOutput("fatal"),
                                 plotOutput("plot13")),
@@ -78,8 +82,10 @@ shinyUI(
                 # EDA:  Numeric Predictors
                 tabItem(tabName = "tabcatvars",
                         fluidRow(
-                            column(6,varSelectInput("var1", "Select a variable to explore:", catSubset)),
-                            column(6,tableOutput("table1"))
+                            column(6,
+                                   varSelectInput("var1", "Select a variable to explore:", catSubset)),
+                            column(6,
+                                   tableOutput("table1"))
                         ),
                         fluidRow(
                             box(title="One-Way Distribution",
@@ -109,7 +115,7 @@ shinyUI(
                         titlePanel(h3("Scatterplot of Total Passengers and Total Injuries by Fatal")),
                         fluidRow(
                             box(title="Hover over a point in the plot to view the total number of passengers and
-                                injuries in a given accident",
+                                injuries in a given event",
                                 verbatimTextOutput("info"),
                                 plotOutput("bivarsnum",hover = "plot_hover"))
                         )

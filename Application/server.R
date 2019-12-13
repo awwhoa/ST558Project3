@@ -16,7 +16,12 @@ library(tree)
 
 
 shinyServer(function(input, output, session) {
-
+    
+    # output 
+    output$dict <- renderTable({
+        dictionary
+    })
+    
     ##### Tab 2: EDA #####
     ### Response Variable
     # Distribution table for Fatal
