@@ -79,7 +79,7 @@ shinyUI(
                             )
                         )
                 ),
-                # EDA:  Numeric Predictors
+                # EDA:  Categorical Predictors
                 tabItem(tabName = "tabcatvars",
                         fluidRow(
                             column(6,
@@ -96,9 +96,16 @@ shinyUI(
                                 plotOutput("plot2"),
                                 br(),
                             downloadButton('downloadPlot2','Download plot'))
-                        )
+                        ),
+                        # fluidRow(
+                        #     column(12,
+                        #            selectInput("bivar1", "Select a variable:", subset),
+                        #            selectInput("bivar2", "Select another variable:", subset, selected=subset[2])),
+                        #     box(title="All Bivariates",
+                        #         plotOutput("bivarsall"))
+                        # )
                 ),
-                # EDA: Categorical Predictors
+                # EDA: Numeric Predictors
                 tabItem(tabName = "tabnumvars",
                         titlePanel(h3("The Numeric Predictors")),
                         fluidRow(
@@ -117,7 +124,8 @@ shinyUI(
                             box(title="Hover over a point in the plot to view the total number of passengers and
                                 injuries in a given event",
                                 verbatimTextOutput("info"),
-                                plotOutput("bivarsnum",hover = "plot_hover"))
+                                plotOutput("bivarsnum",
+                                           hover = "plot_hover"))
                         )
                 ),
                 # Clustering content

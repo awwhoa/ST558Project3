@@ -14,6 +14,9 @@ catSubset <- as.data.frame(unclass(dplyr::select(data, -c("Total.Passengers","To
 # Create subset of predictor variables from analysis dataset
 predSubset <- names(as.data.frame(unclass(dplyr::select(data, -c("Fatal")))))
 
+# Create data frame of variable names
+subset <- names(as.data.frame(unclass(data)))
+
 # Create testing and training data
 sampleSize <- floor(0.8 * nrow(data))
 set.seed(123)

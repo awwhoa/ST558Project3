@@ -17,30 +17,42 @@ library(tree)
 
 shinyServer(function(input, output, session) {
     
-    # output 
+    # Render Data Dictionary Table 
     output$dict <- renderTable({
         dictionary
     })
     
     ##### Tab 2: EDA #####
-    ### Response Variable
-    # Distribution table for Fatal
+    ### Response Variable - Fatal ###
+    # Distribution table - render
     output$fatal <- renderTable({
         table(data$Fatal, dnn="Fatal")
     })
     
-    # create and render the drop down box for the one-way EDA variable selection
+    # Distribution plot - create
+    plotBarFatal <- reactive({
+        ggplot(data, aes(x=Fatal)) + geom_bar(colour="orange") + 
+            geom_text(stat='count', aes(label=..count..), size=6) 
+    })
+    
+    # Distribution plot - render
+    output$plot13 <- renderPlot({
+        plotBarFatal()
+    })
+
+    ### Categorical Predictors ###
+    # Create the reactive freq table
     selectCatData <- reactive({
         newData <- data %>% select(!!input$var1)
-            table(newData, dnn=names(newData))
-        })
+        table(newData, dnn=names(newData))
+    })
     
-    # render the frequency table for categorical variables
+    # render the reactive frequency table 
     output$table1 <- renderTable({
         selectCatData()
     })
     
-    # create the one-way barplot w/ a coordindate flip    
+    # create the reactive one-way barplot 
     plotBar <- reactive({
         ggplot(data, aes(x=!!input$var1)) + geom_bar(colour="orange") + 
             geom_text(stat='count', aes(label=..count..), colour="black", size=5) +
@@ -48,47 +60,12 @@ shinyServer(function(input, output, session) {
             coord_flip()
     })
     
-    # create the bivariate plot with the target variable based on user selection
-    plotBivarTarget <- reactive({
-        ggplot(data, aes(x=!!input$var1, y=Fatal)) +
-            geom_bar(stat="identity", colour="orange") +
-            labs(y="Count of Fatal Incidents") +
-            coord_flip()
-    })
-    
-    # create the categorical one-way plots (based on user variable selection)
+    # render the one-way plots 
     output$plot1 <- renderPlot({
-            plotBar()
+        plotBar()
     })
     
-    # create the one-way plot for response variable fatal
-    plotBarFatal <- reactive({
-        ggplot(data, aes(x=Fatal)) + geom_bar(colour="orange") + 
-            geom_text(stat='count', aes(label=..count..), size=6) 
-    })
-    
-    # create the categorical one-way plots (based on user variable selection)
-    output$plot13 <- renderPlot({
-        plotBarFatal()
-    })
-    
-    # select the appropriate bivariate plot based on user selection
-    output$plot2 <- renderPlot({
-        plotBivarTarget()
-    })
-
-    # plotBivars <- reactive({
-    #     ggplot(data, aes(x=!!input$var1)) + 
-    #         geom_bar(aes(fill = !!input$var2), position = "dodge") #+ 
-    #     # labs(x=, fill="Category")
-    #     
-    # })
-    # 
-    # output$plot45 <- renderPlot({
-    #     plotBivars()
-    # })
-    
-    # create download for categorical plot1
+    # create download for univariate categorical plot1
     output$downloadPlot1 <- downloadHandler(
         filename = function() { paste('PlotFreq', input$var1, '.png', sep='') },
         content = function(file) {
@@ -98,7 +75,7 @@ shinyServer(function(input, output, session) {
         }
     )
     
-    # create download for categorical plot2
+    # create download for univariate categorical plot2
     output$downloadPlot2 <- downloadHandler(
         filename = function() { paste('PlotFreq', input$var1, 'byFatal', '.png', sep='') },
         content = function(file) {
@@ -107,6 +84,74 @@ shinyServer(function(input, output, session) {
             ggsave(file, plot = plotBivarTarget(), device = device)
         }
     )
+
+    # create the bivariate plot with the target variable based on user selection
+    plotBivarTarget <- reactive({
+        ggplot(data, aes(x=!!input$var1, y=Fatal)) +
+            geom_bar(stat="identity", colour="orange") +
+            labs(y="Count of Fatal Incidents") +
+            coord_flip()
+    })
+    
+    # render the bivariate plot based on user selection
+    output$plot2 <- renderPlot({
+        plotBivarTarget()
+    })
+
+    # create bivariate plot for all categorical variables
+    plotBivarsCat <- reactive({
+        ggplot(data, aes(x=!!input$var4)) +
+            geom_bar(aes(fill = !!input$var5), position = "dodge") #+
+        # labs(x=, fill="Category")
+    })
+    # render the biviariate plot for categorical variables
+    output$plot45 <- renderPlot({
+        plotBivarsCat()
+    })
+    
+    ## create bivariate plots for all the world to see
+    # bivariatePlots <- reactive({
+        # ggplot(data, aes(x=Aircraft.Damage)) +
+        #     geom_bar(aes(fill = Aircraft.Category), position = "dodge")
+    # if((input$bivar1 == "Total.Passengers" | 
+    #     input$bivar1 == "Total.Injuries" |
+    #     input$bivar1 == "Fatal") & 
+    #    (input$bivar2 == "Total.Passengers" | 
+    #     input$bivar2 == "Total.Injuries" |
+    #     input$bivar2 == "Fatal")) {
+    #     ggplot(data, aes(x=input$bivar1, y=input$bivar2)) + geom_point()
+    # } else if(is.character(input$bivar1) & is.character(input$bivar2)) {
+    #     ggplot(data, aes(x=input$bivar1)) + 
+    #         geom_bar(aes(fill = input$bivar2), position = "dodge") 
+    # } else if((input$bivar1 == "Total.Passengers" | 
+    #            input$bivar1 == "Total.Injuries" |
+    #            input$bivar1 == "Fatal") & 
+    #           is.character(input$bivar2)){
+    #     ggplot(data, aes(x=input$bivar2, y=input$bivar1)) + 
+    #         geom_bar(stat="identity", colour="orange") #+ coord_flip()
+    # } else if((input$bivar2 == "Total.Passengers" | 
+    #            input$bivar2 == "Total.Injuries" |
+    #            input$bivar2 == "Fatal") & 
+    #           is.character(input$bivar1)){ 
+    #     ggplot(data, aes(x=input$bivar1, y=input$bivar2)) + 
+    #         geom_bar(stat="identity") #+ coord_flip()
+    # }
+    # })
+    
+
+    # # Some bivariates - hope they work     
+    # output$bivarsall <- renderPlot({
+    #     bivariatePlots()
+    # })
+    # 
+    # observe({
+    #     updateSelectInput(session, "bivar1")
+    # })
+    # 
+    # observe({
+    #     updateSelectInput(session, "bivar2")
+    # })
+    
     
     ##### NUMERIC VARIABLE EXPLORATION
     ### Numeric Response Variable
@@ -169,23 +214,23 @@ shinyServer(function(input, output, session) {
         numPlot()
     })
     
-    # create the bivariate plot between two numeric response variables
+    # create the scatterplot plot for the numeric variables
     plotBivarResponseNumeric <- reactive({
         ggplot(data, aes(x=Total.Passengers, y=Total.Injuries)) + 
             geom_point(colour="orange")
     })
-    
+    # create the ninteractive umeric scatterplot by the response variable
     plotBivarResponse <- reactive({
         g <- ggplot(data, aes(x=Total.Passengers, y=Total.Injuries, col=Fatal)) + geom_point()
         print(g + scale_colour_gradient(low = "black", high = "orange"))
     })
     
-    # create the bivariate plot of the two numeric predictors
+    # render the bivariate plot of the two numeric predictors
     output$bivarsnum <- renderPlot({
         plotBivarResponseNumeric()
     })
     
-    # make the numeric predictor bivariate plot clickable
+    # render the scatterplot by the response variabe
     output$info <- renderText({
         xy_str <- function(e) {
             if(is.null(e)) return(NULL)
