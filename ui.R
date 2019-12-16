@@ -149,12 +149,10 @@ shinyUI(
                         titlePanel("Build Your Own Logistic Regression Model to Predict Whether a Fatality Occurred
                                    Due to an Aviation Accident"),
                         fluidRow(
-                            column(12,(h5('Directions:  Select one or more indpendent variables to include in your model and
-                                          click the "Fit model" button. Output will display to the right, and different output
-                                          options are available. Options for running a prediction based on your model will also 
-                                          display below after you run your model. Select your desired independent variable 
-                                          attributes and click the "Run Predictions" button. To run a new model, 
-                                          restart the entire application.')))
+                            column(12,(h4(tags$b('Directions:'),'Select one or more indpendent variables to include in your model and
+                                          click the "Fit model" button. Once you have fit a model, you will then be able to run a 
+                                          customized prediction for your model fit on the second half of the page. Select your desired                                                independent variable attributes and click the "Run Predictions" button. To run a different 
+                                          model, refresh the application and repeat these steps.')))
                         ),
                         br(),
                         fluidRow(
@@ -182,9 +180,7 @@ shinyUI(
                         fluidRow(
                             column(12,
                             # Only show this panel if the "go" run model box is checked
-                            conditionalPanel(condition = "input.go == 1",
-                                             h3("Make Customized Predictions Based on the Logistic 
-                                   Regression Model You Just Created"),
+                            h3("Make Customized Predictions Based on the Logistic Regression Model You Created Above"),
                                              br(),
                                              fluidRow(
                                                  column(4,
@@ -210,7 +206,7 @@ shinyUI(
                                                                      value=5, min=1, max=50))
                                              ),
                                              actionButton("run","Run Predictions"), br(),
-                                             verbatimTextOutput("regpredout"))
+                                             verbatimTextOutput("regpredout")
                             )
                             ),
                 ),

@@ -10,8 +10,8 @@ library(magrittr)
 library(knitr)
 library(RCurl)
 library(plotly)
-library(LiblineaR)
-library(randomForest)
+# library(LiblineaR)
+# library(randomForest)
 library(tree)
 
 
@@ -113,25 +113,25 @@ shinyServer(function(input, output, session) {
     # bivariatePlots <- reactive({
         # ggplot(data, aes(x=Aircraft.Damage)) +
         #     geom_bar(aes(fill = Aircraft.Category), position = "dodge")
-    # if((input$bivar1 == "Total.Passengers" | 
-    #     input$bivar1 == "Total.Injuries" |
-    #     input$bivar1 == "Fatal") & 
-    #    (input$bivar2 == "Total.Passengers" | 
-    #     input$bivar2 == "Total.Injuries" |
+    # if((input$bivar1 == "Total.Passengers" || 
+    #     input$bivar1 == "Total.Injuries" ||
+    #     input$bivar1 == "Fatal") && 
+    #    (input$bivar2 == "Total.Passengers" || 
+    #     input$bivar2 == "Total.Injuries" ||
     #     input$bivar2 == "Fatal")) {
     #     ggplot(data, aes(x=input$bivar1, y=input$bivar2)) + geom_point()
-    # } else if(is.character(input$bivar1) & is.character(input$bivar2)) {
+    # } else if(is.character(input$bivar1) && is.character(input$bivar2)) {
     #     ggplot(data, aes(x=input$bivar1)) + 
     #         geom_bar(aes(fill = input$bivar2), position = "dodge") 
     # } else if((input$bivar1 == "Total.Passengers" | 
     #            input$bivar1 == "Total.Injuries" |
-    #            input$bivar1 == "Fatal") & 
+    #            input$bivar1 == "Fatal") && 
     #           is.character(input$bivar2)){
     #     ggplot(data, aes(x=input$bivar2, y=input$bivar1)) + 
     #         geom_bar(stat="identity", colour="orange") #+ coord_flip()
-    # } else if((input$bivar2 == "Total.Passengers" | 
-    #            input$bivar2 == "Total.Injuries" |
-    #            input$bivar2 == "Fatal") & 
+    # } else if((input$bivar2 == "Total.Passengers" || 
+    #            input$bivar2 == "Total.Injuries" ||
+    #            input$bivar2 == "Fatal") && 
     #           is.character(input$bivar1)){ 
     #     ggplot(data, aes(x=input$bivar1, y=input$bivar2)) + 
     #         geom_bar(stat="identity") #+ coord_flip()
@@ -339,6 +339,13 @@ shinyServer(function(input, output, session) {
     #     }
     # })
         
+    # customize error message when no vars are entered
+    # logFitErrMsg <- reactive({
+    #     validate(
+    #         need(input$indvar == "", "Please select variable(s) to continue")
+    #         )
+    # })
+
     # generate model output w/ option for user selection
     output$regoutput <- renderPrint({
         logFitGLM()
@@ -346,9 +353,11 @@ shinyServer(function(input, output, session) {
            # then switch to user-selected output
            observe({updateSelectInput(session,"regoutput")})
            logFitANOVA()
-       } else {
+       } else if(input$selectout == "Model fit summary"){
            observe({updateSelectInput(session,"regoutput")})
            logFitGLM()
+       } else {
+           logFitErrMsg()
        }
     })
 
@@ -378,12 +387,57 @@ shinyServer(function(input, output, session) {
 
     # output the prediction box conditionally
     output$regpredout <- renderPrint({
-        if(input$run == 1) {
+        if(input$go == 0) {
+            "Fit a model in order to run prediction "            
+        } else {
             logPredictions()
-        } else if(input$go == 0){
-            "Fit a model in order to run prediction "
         }
     })
+        
+    #     if(input$run == 1 && input$go == 1 ) {
+    #     } else if(input$go == 0){
+    # 
+    #     }
+    # })
+    
+    observe({
+        updateSelectInput(session, "predictdmg")
+    })
+    observe({
+        updateSelectInput(session, "predcateg")
+    })
+    observe({
+        updateSelectInput(session, "predpurp")
+    })
+    observe({
+        updateSelectInput(session, "predphase")
+    })
+    observe({
+        updateSelectInput(session, "predeng")
+    })
+    observe({
+        updateSelectInput(session, "predweath")
+    })
+    observe({
+        updateSelectInput(session, "predblt")
+    })
+    observe({
+        updateNumericInput(session, "predpass")
+    })
+    observe({
+        updateNumericInput(session, "predinj")
+    })
+
+    # make the model fit reactive when new 
+    observe({
+        updateActionButton(session, "go")
+    })
+    # make the log predictions reactive    
+    observeEvent(input$go, {
+        updateActionButton(session, "run")
+        logPredictions()
+    })
+    
 
     ##### Create classification tree
     treeplot <- reactive({
@@ -477,7 +531,10 @@ shinyServer(function(input, output, session) {
     observe({
         updateNumericInput(session, "predinj2")
     })
-
+    observe({
+        updateActionButton(session, "predtree")
+    })
+    
     
     
     # mathjax stuff
