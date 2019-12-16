@@ -12,7 +12,7 @@ shinyUI(
                 menuItem("EDA", tabName = "tabeda",
                          menuItem("Response Variable", tabName="tabresp"),
                          menuItem("Numeric Predictors", tabName="tabnumvars"), 
-                         # #include another 2nd level tab for bivariates acorss the dataset if time
+                         # #include another 2nd level tab for bivariates across the dataset if time
                          menuItem("Categorical Predictors", tabName="tabcatvars")), 
                 menuItem("Unsupervised Learning", tabName="tabunsup", 
                          menuItem("Clustering", tabName="tabcluster"),
@@ -75,7 +75,7 @@ shinyUI(
                                           event did not result in any death.")),
                             box(title="Distribution of Fatal",
                                 tableOutput("fatal"),
-                                plotOutput("plot13")),
+                                plotOutput("plot13"))
                             )
                         )
                 ),
