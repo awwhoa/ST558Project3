@@ -317,19 +317,19 @@ shinyServer(function(input, output, session) {
         anova(fit)
     })
     # calculate misclassification rate of predictionso from the mode onto the holdout data set
-    logFitMisclass <- reactive({
-        fit <- glm(as.formula(paste("Fatal ~ ",
-                                    paste0(input$indvar, collapse="+"))),
-                   data=train,
-                   family=binomial)
-        predTbl <- table(fit, test[,"Fatal"])
-        classRate <- sum(diag(predTbl)/sum(predTbl))
-        as.vector(classRate)
-    })
-    
-    wtf <- reactive({
-        paste("does this work?", logFitMisclass())
-    })
+    # logFitMisclass <- reactive({
+    #     fit <- glm(as.formula(paste("Fatal ~ ",
+    #                                 paste0(input$indvar, collapse="+"))),
+    #                data=train,
+    #                family=binomial)
+    #     predTbl <- table(fit, test[,"Fatal"])
+    #     classRate <- sum(diag(predTbl)/sum(predTbl))
+    #     as.vector(classRate)
+    # })
+    # 
+    # wtf <- reactive({
+    #     paste("does this work?", logFitMisclass())
+    # })
     
     # output$misclassrate <- renderPrint({
     #     if(input$misclass == 1) {
@@ -339,13 +339,6 @@ shinyServer(function(input, output, session) {
     #     }
     # })
         
-    # customize error message when no vars are entered
-    # logFitErrMsg <- reactive({
-    #     validate(
-    #         need(input$indvar == "", "Please select variable(s) to continue")
-    #         )
-    # })
-
     # generate model output w/ option for user selection
     output$regoutput <- renderPrint({
         logFitGLM()
@@ -356,8 +349,6 @@ shinyServer(function(input, output, session) {
        } else if(input$selectout == "Model fit summary"){
            observe({updateSelectInput(session,"regoutput")})
            logFitGLM()
-       } else {
-           logFitErrMsg()
        }
     })
 

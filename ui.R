@@ -150,9 +150,8 @@ shinyUI(
                                    Due to an Aviation Accident"),
                         fluidRow(
                             column(12,(h4(tags$b('Directions:'),'Select one or more indpendent variables to include in your model and
-                                          click the "Fit model" button. Once you have fit a model, you will then be able to run a 
-                                          customized prediction for your model fit on the second half of the page. Select your desired                                                independent variable attributes and click the "Run Predictions" button. To run a different 
-                                          model, refresh the application and repeat these steps.')))
+                                          click the "Fit model" button. Once you have fit your model, you can run a 
+                                          customized prediction for your model fit below.')))
                         ),
                         br(),
                         fluidRow(
@@ -179,8 +178,10 @@ shinyUI(
                 # tabItem(tabName = "tabpredict",
                         fluidRow(
                             column(12,
-                            # Only show this panel if the "go" run model box is checked
                             h3("Make Customized Predictions Based on the Logistic Regression Model You Created Above"),
+                            h4("Based on the predictors you included in your model, select attributes for these 
+                            variables and click the Run Predictions button. To update your your predictions, select 
+                            new attributes and click the Run Predictions button again."),
                                              br(),
                                              fluidRow(
                                                  column(4,
